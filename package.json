@@ -1,7 +1,9 @@
 {
-  "name": "threejs-playground",
-  "version": "1.0.0",
-  "description": "",
+  "name": "web-playground",
+  "version": "0.1.0",
+  "description": "A ready to use environment for playing with web tech.",
+  "repository": "git@github.com:yeticgi/amway-colorful-farm.git",
+  "author": "Ryan Cook",
   "main": "index.js",
   "scripts": {
     "build:dev": "rollup -c --configMode dev",
