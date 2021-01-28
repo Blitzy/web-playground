@@ -1,10 +1,8 @@
-import { disposeObject3d } from "@yeti-cgi/ape";
 import { 
     WebGLRenderer,
     sRGBEncoding,
     Scene,
     Object3D,
-    Color,
     PerspectiveCamera,
     BoxBufferGeometry,
     MeshStandardMaterial,
@@ -26,7 +24,7 @@ export class OrbitBox {
         // Setup renderer.
         this.renderer = new WebGLRenderer({
             antialias: true,
-            alpha: false,
+            alpha: true,
             powerPreference: 'high-performance'
         });
 
@@ -35,7 +33,6 @@ export class OrbitBox {
         
         // Setup scene.
         this.scene = new Scene();
-        this.scene.background = new Color('#252629');
 
         // Setup camera.
         this.camera = new PerspectiveCamera(60);

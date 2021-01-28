@@ -26,9 +26,6 @@ async function init() {
 function initUI(): void {
     const buttonParent: HTMLDivElement = document.createElement('div');
     buttonParent.id = 'sandbox-buttons';
-    buttonParent.style.overflow = 'auto';
-    buttonParent.style.width = '100vw';
-    buttonParent.style.height = '100vh';
     document.body.append(buttonParent);
 
     const sandboxKeys = Object.keys(SandboxMap);
@@ -37,13 +34,6 @@ function initUI(): void {
         const button: HTMLButtonElement = document.createElement('button');
         button.id = key;
         button.textContent = key;
-        button.style.backgroundColor = 'transparent';
-        button.style.border = 'white';
-        button.style.borderWidth = 'thin';
-        button.style.borderStyle = 'solid';
-        button.style.color = 'white';
-        button.style.padding = '8px';
-        button.style.margin = '8px';
 
         button.addEventListener('click', (event) => {
             const clickedButton = event.target as HTMLButtonElement;
@@ -65,12 +55,7 @@ function loadSandbox(key: string): void {
     // Create iframe for the sandbox to run in.
     sandboxIframe = document.createElement('iframe');
     sandboxIframe.name = 'sandbox-iframe';
-    sandboxIframe.style.position = 'fixed';
-    sandboxIframe.style.top = '0';
-    sandboxIframe.style.left = '0';
-    sandboxIframe.style.width = '100vw';
-    sandboxIframe.style.height = '100vh';
-    sandboxIframe.style.border = 'none';
+    sandboxIframe.id = 'sandbox-iframe';
     sandboxIframe.src = `${window.location.origin}?sandbox=${key}`;
 
     document.body.append(sandboxIframe);
