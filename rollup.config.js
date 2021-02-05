@@ -246,6 +246,7 @@ export default async function start(args) {
         '**/*.bin',
         '**/*.mp3',
         '**/*.json',
+        '**/*.hdr',
       ]
     })
   );

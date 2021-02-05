@@ -11,9 +11,28 @@ import {
     Texture,
     DirectionalLightHelper,
     Object3D,
+    UnsignedByteType,
+    PMREMGenerator,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
+
+import venice_sunset_hdr from './envmap/venice_sunset_1k.hdr';
+import sky_hdr from './envmap/Sky_Orig_BAKELIGHT.hdr';
+import sky_ldr from './envmap/Sky_Orig_BAKELIGHT.jpg';
+
+// Original Phidias Workshop
+import orig_workshop_gltf from './models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';
+import orig_workshop_bin from './models/orig-phidias-workshop/14-PhidiasWorkshop.bin';
+import orig_limestone_diffuse_tex from './models/orig-phidias-workshop/LimeStoneCoquille_color.jpg';
+import orig_limestone_normal_tex from './models/orig-phidias-workshop/LimeStoneCoquille_normal.jpg';
+import orig_atlas_diffuse_tex from './models/orig-phidias-workshop/PhidiasWorkshop_Atlas_c.jpg';
+import orig_atlas_normal_tex from './models/orig-phidias-workshop/PhidiasWorkshop_Atlas_nml.jpg';
+import orig_pillar_normal_tex from './models/orig-phidias-workshop/PillarGenericA_nml.jpg';
+import orig_stuc_normal_tex from './models/orig-phidias-workshop/Stuc_normal.jpg';
+import orig_wood_diffuse_tex from './models/orig-phidias-workshop/WoodOak_color.png';
+import orig_wood_normal_tex from './models/orig-phidias-workshop/WoodOak_normal.png';
 
 // v1 Phidias Workshop Color
 import v1_color_workshop_gltf from './models/phidias-workshop-color/14-PhidiasWorkshop.gltf';
@@ -71,7 +90,7 @@ import v2_color_wood_lightmap_tex from './models/v2-phidias-workshop-color/Oak_L
 import v2_color_wood_diffuse_tex from './models/v2-phidias-workshop-color/WoodOak_color.png';
 import v2_color_wood_normal_tex from './models/v2-phidias-workshop-color/WoodOak_normal.png';
 
-const modes = [ 'v1 color', 'v1 greyscale', 'v2 color' ] as const;
+const modes = [ 'original', 'v1 color', 'v1 greyscale', 'v2 color' ] as const;
 
 type Mode = typeof modes[number];
 
@@ -82,15 +101,16 @@ export class LightmapTest {
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
 
-    sunLightEnabled: boolean = false;
     sunLight: DirectionalLight;
-    sunLightHelper: DirectionalLightHelper;
-    skyLightEnabled: boolean = false;
+    // sunLightHelper: DirectionalLightHelper;
     skyLight: HemisphereLight;
+
+    envMap: Texture;
 
     loaded: boolean;
     currentMode: Mode;
 
+    orig_model: Object3D;
     v1_colorModel: Object3D;
     v1_greyscaleModel: Object3D;
     v2_colorModel: Object3D;
@@ -104,6 +124,8 @@ export class LightmapTest {
         });
 
         this.renderer.outputEncoding = sRGBEncoding;
+        // this.renderer.toneMapping = ACESFilmicToneMapping;
+        // this.renderer.toneMappingExposure = 1;
         document.body.appendChild(this.renderer.domElement);
         
         // Setup scene.
@@ -119,20 +141,18 @@ export class LightmapTest {
         this.orbitControls.target.y = 3;
 
         // Add light to scene.
-        this.sunLight = new DirectionalLight('#fff', 0.5);
+        this.sunLight = new DirectionalLight('#e6ba87', 1);
         this.sunLight.name = 'Sun Light';
         this.sunLight.target.name = 'Sun Light Target';
-        this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
+        // this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
         this.sunLight.position.set(0, 50, 0);
         this.sunLight.target.position.set(-45, 0, 35);
-        this.sunLight.visible = this.sunLightEnabled;
         this.scene.add(this.sunLight);
         this.scene.add(this.sunLight.target);
-        this.scene.add(this.sunLightHelper);
+        // this.scene.add(this.sunLightHelper);
         
-        this.skyLight = new HemisphereLight('#bde4ff', '#737063', 1);
+        this.skyLight = new HemisphereLight('#737063', '#737063', 0.025);
         this.skyLight.name = 'Sky Light';
-        this.skyLight.visible = this.skyLightEnabled;
         this.scene.add(this.skyLight);
 
         this.update = this.update.bind(this);
@@ -142,80 +162,94 @@ export class LightmapTest {
         window.addEventListener('resize', this.resize);
         this.resize();
         
-        Promise.all([
+        this.start();
+    }
+
+    async start(): Promise<void> {
+        await this.load_hdrEnvMap(venice_sunset_hdr);
+        // await this.load_hdrEnvMap(sky_hdr);
+        // await this.load_ldrEnvMap(sky_ldr);
+
+        await Promise.all([
+            this.load_origModel(),
             this.load_v1_ColorModel(),
             this.load_v1_GreyscaleModel(),
             this.load_v2_ColorModel(),
-        ]).then(() => {
-            this.loaded = true;
+        ]);
 
-            // Setup mode buttons.
-            const buttonParent = document.createElement('div');
-            buttonParent.id = 'button-group-lr';
+        // Setup mode buttons.
+        const buttonParent = document.createElement('div');
+        buttonParent.id = 'button-group-lr';
 
-            document.body.append(buttonParent);
+        document.body.append(buttonParent);
 
-            for (const mode of modes) {
-                const button = document.createElement('button');
-                button.id = mode;
-                button.textContent = mode;
-                buttonParent.append(button);
-    
-                button.addEventListener('click', (event) => {
-                    this.changeMode(mode);
-                });
+        for (const mode of modes) {
+            const button = document.createElement('button');
+            button.id = mode;
+            button.textContent = mode;
+            buttonParent.append(button);
+
+            button.addEventListener('click', (event) => {
+                this.changeMode(mode);
+            });
+        }
+
+        this.onSunLightCheckboxChange = this.onSunLightCheckboxChange.bind(this);
+        this.onSkyLightCheckboxChange = this.onSkyLightCheckboxChange.bind(this);
+        this.onEnvMapCheckboxChange = this.onEnvMapCheckboxChange.bind(this);
+
+        // Create toggles.
+        const toggleConfigs = [
+            {
+                id: 'sun-light',
+                label: 'Sun light',
+                onChange: this.onSunLightCheckboxChange
+            }, {
+                id: 'sky-light',
+                label: 'Sky light',
+                onChange: this.onSkyLightCheckboxChange
+            }, {
+                id: 'env-map',
+                label: 'Environment Map',
+                onChange: this.onEnvMapCheckboxChange
             }
+        ];
 
-            this.toggleSunlight = this.toggleSunlight.bind(this);
-            this.toggleSkylight = this.toggleSkylight.bind(this);
+        for (const toggleConfig of toggleConfigs) {
+            const toggleDiv = document.createElement('div');
 
-            // Create toggles for lights.
-            const toggleConfigs = [
-                {
-                    id: 'sun-light',
-                    label: 'Sun light',
-                    defaultChecked: this.sunLightEnabled,
-                    onChange: this.toggleSunlight
-                }, {
-                    id: 'sky-light',
-                    label: 'Sky light',
-                    defaultChecked: this.skyLightEnabled,
-                    onChange: this.toggleSkylight
-                }
-            ];
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = toggleConfig.id;
+            checkbox.name = toggleConfig.id;
+            checkbox.addEventListener('change', toggleConfig.onChange);
+            toggleDiv.append(checkbox);
 
-            for (const toggleConfig of toggleConfigs) {
-                const toggleDiv = document.createElement('div');
-    
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = toggleConfig.id;
-                checkbox.name = toggleConfig.id;
-                checkbox.defaultChecked = toggleConfig.defaultChecked;
-                checkbox.addEventListener('change', toggleConfig.onChange);
-                toggleDiv.append(checkbox);
-    
-                const label = document.createElement('label');
-                label.htmlFor = toggleConfig.id;
-                label.textContent = toggleConfig.label;
-                toggleDiv.append(label);
-    
-                buttonParent.append(toggleDiv);
-            }
+            const label = document.createElement('label');
+            label.htmlFor = toggleConfig.id;
+            label.textContent = toggleConfig.label;
+            toggleDiv.append(label);
 
+            buttonParent.append(toggleDiv);
+        }
 
-            this.changeMode('v2 color');
-        });
+        this.loaded = true;
+        this.changeMode('v2 color');
     }
 
-    toggleSunlight(): void {
-        this.sunLightEnabled = !this.sunLightEnabled;
-        this.sunLight.visible = this.sunLightEnabled;
+    onSunLightCheckboxChange(): void {
+        const sunLightCheckbox = document.getElementById('sun-light') as HTMLInputElement;
+        this.sunLight.visible = sunLightCheckbox.checked;
     }
 
-    toggleSkylight(): void {
-        this.skyLightEnabled = !this.skyLightEnabled;
-        this.skyLight.visible = this.skyLightEnabled;
+    onSkyLightCheckboxChange(): void {
+        const skyLightCheckbox = document.getElementById('sky-light') as HTMLInputElement;
+        this.skyLight.visible = skyLightCheckbox.checked;
+    }
+
+    onEnvMapCheckboxChange(): void {
+        const envMapCheckbox = document.getElementById('env-map') as HTMLInputElement;
+        this.scene.environment = envMapCheckbox.checked ? this.envMap : null;
     }
 
     changeMode(mode: Mode): void {
@@ -223,11 +257,109 @@ export class LightmapTest {
             return;
         }
 
+        this.orig_model.visible = mode === 'original';
         this.v1_colorModel.visible = mode === 'v1 color';
         this.v1_greyscaleModel.visible = mode === 'v1 greyscale';
         this.v2_colorModel.visible = mode === 'v2 color';
 
+        const sunLightCheckbox = document.getElementById('sun-light') as HTMLInputElement;
+        const skyLightCheckbox = document.getElementById('sky-light') as HTMLInputElement;
+        const envMapCheckbox = document.getElementById('env-map') as HTMLInputElement;
+
+        if (mode === 'original') {
+            sunLightCheckbox.checked = true;
+            skyLightCheckbox.checked = true;
+            envMapCheckbox.checked = false;
+        } else if (mode === 'v1 color') {
+            sunLightCheckbox.checked = false;
+            skyLightCheckbox.checked = false;
+            envMapCheckbox.checked = false;
+        } else if (mode === 'v1 greyscale') {
+            sunLightCheckbox.checked = false;
+            skyLightCheckbox.checked = false;
+            envMapCheckbox.checked = false;
+        } else if (mode === 'v2 color') {
+            sunLightCheckbox.checked = false;
+            skyLightCheckbox.checked = false;
+            envMapCheckbox.checked = true;
+        } else {
+            console.error(`Mode ${mode} is not implemented.`)
+        }
+
+        this.onSunLightCheckboxChange();
+        this.onSkyLightCheckboxChange();
+        this.onEnvMapCheckboxChange();
+
         this.currentMode = mode;
+    }
+
+    async load_hdrEnvMap(url: string): Promise<void> {
+        const pmremGenerator = new PMREMGenerator(this.renderer);
+        pmremGenerator.compileEquirectangularShader();
+        
+        await new Promise<void>((resolve, reject) => {
+            new RGBELoader().setDataType(UnsignedByteType).load(url, 
+                (texture) => {
+                    this.envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    pmremGenerator.dispose();
+
+                    resolve();
+                },
+                undefined,
+                reject
+            );
+        });
+    }
+
+    async load_ldrEnvMap(url: string): Promise<void> {
+        const pmremGenerator = new PMREMGenerator(this.renderer);
+        pmremGenerator.compileCubemapShader();
+        
+        await new Promise<void>((resolve, reject) => {
+            new TextureLoader().load(url, 
+                (texture) => {
+                    this.envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    pmremGenerator.dispose();
+
+                    resolve();
+                },
+                undefined,
+                reject
+            );
+
+            // new RGBELoader().setDataType(UnsignedByteType).load(url, 
+            //     (texture) => {
+            //         this.envMap = pmremGenerator.fromEquirectangular(texture).texture;
+            //         pmremGenerator.dispose();
+
+            //         resolve();
+            //     },
+            //     undefined,
+            //     reject
+            // );
+        });
+    }
+
+    async load_origModel(): Promise<void> {
+        const gltf = await gltfSmartLoad({
+            gltfUrl: orig_workshop_gltf,
+            binUrl: orig_workshop_bin,
+            textureUrls: [
+                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: orig_limestone_diffuse_tex },
+                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: orig_limestone_normal_tex },
+                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: orig_atlas_diffuse_tex },
+                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: orig_atlas_normal_tex },
+                { filename: 'PillarGenericA_nml.jpg', redirectUrl: orig_pillar_normal_tex },
+                { filename: 'Stuc_normal.jpg', redirectUrl: orig_stuc_normal_tex },
+                { filename: 'WoodOak_color.png', redirectUrl: orig_wood_diffuse_tex },
+                { filename: 'WoodOak_normal.png', redirectUrl: orig_wood_normal_tex },
+            ]
+        });
+
+        this.orig_model = gltf.scene;
+        this.orig_model.visible = false;
+        this.orig_model.name = 'Original Phidias Workshop';
+        this.scene.add(this.orig_model);
     }
 
     async load_v1_ColorModel(): Promise<void> {
@@ -403,7 +535,7 @@ export class LightmapTest {
 
     update(): void {
         this.orbitControls.update();
-        this.sunLightHelper.update();
+        // this.sunLightHelper.update();
 
         this.renderer.render(this.scene, this.camera);
     }
