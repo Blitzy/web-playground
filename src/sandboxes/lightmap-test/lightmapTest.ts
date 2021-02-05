@@ -48,7 +48,6 @@ import greyscale_stuc_normal_tex from './models/phidias-workshop-greyscale/Stuc_
 import greyscale_wood_lightmap_tex from './models/phidias-workshop-greyscale/Oak_LightMap.png';
 import greyscale_wood_diffuse_tex from './models/phidias-workshop-greyscale/WoodOak_color.png';
 import greyscale_wood_normal_tex from './models/phidias-workshop-greyscale/WoodOak_normal.png';
-import { takeWhile } from "lodash";
 
 const modes = [ 'color', 'greyscale' ] as const;
 
@@ -61,6 +60,7 @@ export class LightmapTest {
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
 
+    sunLightEnabled: boolean = false;
     sunLight: DirectionalLight;
     sunLightHelper: DirectionalLightHelper;
     skyLight: HemisphereLight;
@@ -91,6 +91,7 @@ export class LightmapTest {
         this.camera.position.x = 40;
         this.scene.add(this.camera);
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.orbitControls.target.y = 3;
 
         // Add light to scene.
         this.sunLight = new DirectionalLight('#fff', 0.5);
@@ -99,6 +100,7 @@ export class LightmapTest {
         this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
         this.sunLight.position.set(0, 50, 0);
         this.sunLight.target.position.set(-45, 0, 35);
+        this.sunLight.visible = this.sunLightEnabled;
         this.scene.add(this.sunLight);
         this.scene.add(this.sunLight.target);
         this.scene.add(this.sunLightHelper);
@@ -132,6 +134,24 @@ export class LightmapTest {
                 });
             }
 
+            // Setup sun light checkbox
+            const sunLightToggle = document.createElement('div');
+
+            const sunLightCheckbox = document.createElement('input');
+            sunLightCheckbox.type = 'checkbox';
+            sunLightCheckbox.id = 'sun-light';
+            sunLightCheckbox.name = 'sun-light';
+            sunLightCheckbox.defaultChecked = this.sunLightEnabled;
+            sunLightCheckbox.addEventListener('change', () => this.toggleSunlight());
+            sunLightToggle.append(sunLightCheckbox);
+
+            const sunLightLabel = document.createElement('label');
+            sunLightLabel.htmlFor = 'sun-light';
+            sunLightLabel.textContent = 'Sun light';
+            sunLightToggle.append(sunLightLabel);
+
+            buttonParent.append(sunLightToggle);
+
             this.changeMode('color');
         });
     }
@@ -143,6 +163,11 @@ export class LightmapTest {
         ]);
 
         this.loaded = true;
+    }
+
+    toggleSunlight(): void {
+        this.sunLightEnabled = !this.sunLightEnabled;
+        this.sunLight.visible = this.sunLightEnabled;
     }
 
     changeMode(mode: Mode): void {
