@@ -15,41 +15,63 @@ import {
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 
-// Phidias Workshop Color
-import color_workshop_gltf from './models/phidias-workshop-color/14-PhidiasWorkshop.gltf';
-import color_workshop_bin from './models/phidias-workshop-color/14-PhidiasWorkshop.bin';
-import color_limestone_lightmap_tex from './models/phidias-workshop-color/Limestone_Coquille_LightMap.png';
-import color_limestone_diffuse_tex from './models/phidias-workshop-color/LimeStoneCoquille_color.jpg';
-import color_limestone_normal_tex from './models/phidias-workshop-color/LimeStoneCoquille_normal.jpg';
-import color_atlas_lightmap_tex from './models/phidias-workshop-color/LOD0_PhidiasAtlas_LightMap.png';
-import color_atlas_diffuse_tex from './models/phidias-workshop-color/PhidiasWorkshop_Atlas_c.jpg';
-import color_atlas_normal_tex from './models/phidias-workshop-color/PhidiasWorkshop_Atlas_nml.jpg';
-import color_pillar_normal_tex from './models/phidias-workshop-color/PillarGenericA_nml.jpg';
-import color_pillar_lightmap_tex from './models/phidias-workshop-color/Pillars_LightMap.png';
-import color_stuc_lightmap_tex from './models/phidias-workshop-color/Struc_LightMap.png';
-import color_stuc_normal_tex from './models/phidias-workshop-color/Stuc_normal.jpg';
-import color_wood_lightmap_tex from './models/phidias-workshop-color/Oak_LightMap.png';
-import color_wood_diffuse_tex from './models/phidias-workshop-color/WoodOak_color.png';
-import color_wood_normal_tex from './models/phidias-workshop-color/WoodOak_normal.png';
+// v1 Phidias Workshop Color
+import v1_color_workshop_gltf from './models/phidias-workshop-color/14-PhidiasWorkshop.gltf';
+import v1_color_workshop_bin from './models/phidias-workshop-color/14-PhidiasWorkshop.bin';
+import v1_color_limestone_lightmap_tex from './models/phidias-workshop-color/Limestone_Coquille_LightMap.png';
+import v1_color_limestone_diffuse_tex from './models/phidias-workshop-color/LimeStoneCoquille_color.jpg';
+import v1_color_limestone_normal_tex from './models/phidias-workshop-color/LimeStoneCoquille_normal.jpg';
+import v1_color_atlas_lightmap_tex from './models/phidias-workshop-color/LOD0_PhidiasAtlas_LightMap.png';
+import v1_color_atlas_diffuse_tex from './models/phidias-workshop-color/PhidiasWorkshop_Atlas_c.jpg';
+import v1_color_atlas_normal_tex from './models/phidias-workshop-color/PhidiasWorkshop_Atlas_nml.jpg';
+import v1_color_pillar_normal_tex from './models/phidias-workshop-color/PillarGenericA_nml.jpg';
+import v1_color_pillar_lightmap_tex from './models/phidias-workshop-color/Pillars_LightMap.png';
+import v1_color_stuc_lightmap_tex from './models/phidias-workshop-color/Struc_LightMap.png';
+import v1_color_stuc_normal_tex from './models/phidias-workshop-color/Stuc_normal.jpg';
+import v1_color_wood_lightmap_tex from './models/phidias-workshop-color/Oak_LightMap.png';
+import v1_color_wood_diffuse_tex from './models/phidias-workshop-color/WoodOak_color.png';
+import v1_color_wood_normal_tex from './models/phidias-workshop-color/WoodOak_normal.png';
 
-// Phidias Workshop greyscale
-import greyscale_workshop_gltf from './models/phidias-workshop-greyscale/14-PhidiasWorkshop.gltf';
-import greyscale_workshop_bin from './models/phidias-workshop-greyscale/14-PhidiasWorkshop.bin';
-import greyscale_limestone_lightmap_tex from './models/phidias-workshop-greyscale/Limestone_Coquille_LightMap.png';
-import greyscale_limestone_diffuse_tex from './models/phidias-workshop-greyscale/LimeStoneCoquille_color.jpg';
-import greyscale_limestone_normal_tex from './models/phidias-workshop-greyscale/LimeStoneCoquille_normal.jpg';
-import greyscale_atlas_lightmap_tex from './models/phidias-workshop-greyscale/LOD0_PhidiasAtlas_LightMap.png';
-import greyscale_atlas_diffuse_tex from './models/phidias-workshop-greyscale/PhidiasWorkshop_Atlas_c.jpg';
-import greyscale_atlas_normal_tex from './models/phidias-workshop-greyscale/PhidiasWorkshop_Atlas_nml.jpg';
-import greyscale_pillar_normal_tex from './models/phidias-workshop-greyscale/PillarGenericA_nml.jpg';
-import greyscale_pillar_lightmap_tex from './models/phidias-workshop-greyscale/Pillars_LightMap.png';
-import greyscale_stuc_lightmap_tex from './models/phidias-workshop-greyscale/Struc_LightMap.png';
-import greyscale_stuc_normal_tex from './models/phidias-workshop-greyscale/Stuc_normal.jpg';
-import greyscale_wood_lightmap_tex from './models/phidias-workshop-greyscale/Oak_LightMap.png';
-import greyscale_wood_diffuse_tex from './models/phidias-workshop-greyscale/WoodOak_color.png';
-import greyscale_wood_normal_tex from './models/phidias-workshop-greyscale/WoodOak_normal.png';
+// v1 Phidias Workshop greyscale
+import v1_greyscale_workshop_gltf from './models/phidias-workshop-greyscale/14-PhidiasWorkshop.gltf';
+import v1_greyscale_workshop_bin from './models/phidias-workshop-greyscale/14-PhidiasWorkshop.bin';
+import v1_greyscale_limestone_lightmap_tex from './models/phidias-workshop-greyscale/Limestone_Coquille_LightMap.png';
+import v1_greyscale_limestone_diffuse_tex from './models/phidias-workshop-greyscale/LimeStoneCoquille_color.jpg';
+import v1_greyscale_limestone_normal_tex from './models/phidias-workshop-greyscale/LimeStoneCoquille_normal.jpg';
+import v1_greyscale_atlas_lightmap_tex from './models/phidias-workshop-greyscale/LOD0_PhidiasAtlas_LightMap.png';
+import v1_greyscale_atlas_diffuse_tex from './models/phidias-workshop-greyscale/PhidiasWorkshop_Atlas_c.jpg';
+import v1_greyscale_atlas_normal_tex from './models/phidias-workshop-greyscale/PhidiasWorkshop_Atlas_nml.jpg';
+import v1_greyscale_pillar_normal_tex from './models/phidias-workshop-greyscale/PillarGenericA_nml.jpg';
+import v1_greyscale_pillar_lightmap_tex from './models/phidias-workshop-greyscale/Pillars_LightMap.png';
+import v1_greyscale_stuc_lightmap_tex from './models/phidias-workshop-greyscale/Struc_LightMap.png';
+import v1_greyscale_stuc_normal_tex from './models/phidias-workshop-greyscale/Stuc_normal.jpg';
+import v1_greyscale_wood_lightmap_tex from './models/phidias-workshop-greyscale/Oak_LightMap.png';
+import v1_greyscale_wood_diffuse_tex from './models/phidias-workshop-greyscale/WoodOak_color.png';
+import v1_greyscale_wood_normal_tex from './models/phidias-workshop-greyscale/WoodOak_normal.png';
 
-const modes = [ 'color', 'greyscale' ] as const;
+// v2 Phidias Workshop color
+import v2_color_workshop_gltf from './models/v2-phidias-workshop-color/14-PhidiasWorkshop.gltf';
+import v2_color_workshop_bin from './models/v2-phidias-workshop-color/14-PhidiasWorkshop.bin';
+import v2_color_limestone_ao_tex from './models/v2-phidias-workshop-color/Limestone_Coquille_AO.png';
+import v2_color_limestone_lightmap_tex from './models/v2-phidias-workshop-color/Limestone_Coquille_LightMap.png';
+import v2_color_limestone_diffuse_tex from './models/v2-phidias-workshop-color/LimeStoneCoquille_color.jpg';
+import v2_color_limestone_normal_tex from './models/v2-phidias-workshop-color/LimeStoneCoquille_normal.jpg';
+import v2_color_atlas_ao_tex from './models/v2-phidias-workshop-color/LOD0_PhidiasAtlas_AO.png';
+import v2_color_atlas_lightmap_tex from './models/v2-phidias-workshop-color/LOD0_PhidiasAtlas_LightMap.png';
+import v2_color_atlas_diffuse_tex from './models/v2-phidias-workshop-color/PhidiasWorkshop_Atlas_c.jpg';
+import v2_color_atlas_normal_tex from './models/v2-phidias-workshop-color/PhidiasWorkshop_Atlas_nml.jpg';
+import v2_color_pillar_normal_tex from './models/v2-phidias-workshop-color/PillarGenericA_nml.jpg';
+import v2_color_pillar_ao_tex from './models/v2-phidias-workshop-color/Pillars_AO.png';
+import v2_color_pillar_lightmap_tex from './models/v2-phidias-workshop-color/Pillars_LightMap.png';
+import v2_color_stuc_ao_tex from './models/v2-phidias-workshop-color/Struc_AO.png';
+import v2_color_stuc_lightmap_tex from './models/v2-phidias-workshop-color/Struc_LightMap.png';
+import v2_color_stuc_normal_tex from './models/v2-phidias-workshop-color/Stuc_normal.jpg';
+import v2_color_wood_ao_tex from './models/v2-phidias-workshop-color/Oak_AO.png';
+import v2_color_wood_lightmap_tex from './models/v2-phidias-workshop-color/Oak_LightMap.png';
+import v2_color_wood_diffuse_tex from './models/v2-phidias-workshop-color/WoodOak_color.png';
+import v2_color_wood_normal_tex from './models/v2-phidias-workshop-color/WoodOak_normal.png';
+
+const modes = [ 'v1 color', 'v1 greyscale', 'v2 color' ] as const;
 
 type Mode = typeof modes[number];
 
@@ -63,12 +85,15 @@ export class LightmapTest {
     sunLightEnabled: boolean = false;
     sunLight: DirectionalLight;
     sunLightHelper: DirectionalLightHelper;
+    skyLightEnabled: boolean = false;
     skyLight: HemisphereLight;
 
     loaded: boolean;
-    colorModel: Object3D;
-    greyscaleModel: Object3D;
     currentMode: Mode;
+
+    v1_colorModel: Object3D;
+    v1_greyscaleModel: Object3D;
+    v2_colorModel: Object3D;
 
     constructor() {
         // Setup renderer.
@@ -86,9 +111,9 @@ export class LightmapTest {
 
         // Setup camera.
         this.camera = new PerspectiveCamera(60);
-        this.camera.position.z = 40;
-        this.camera.position.y = 20;
-        this.camera.position.x = 40;
+        this.camera.position.z = 0;
+        this.camera.position.y = 3;
+        this.camera.position.x = 10;
         this.scene.add(this.camera);
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
         this.orbitControls.target.y = 3;
@@ -107,6 +132,7 @@ export class LightmapTest {
         
         this.skyLight = new HemisphereLight('#bde4ff', '#737063', 1);
         this.skyLight.name = 'Sky Light';
+        this.skyLight.visible = this.skyLightEnabled;
         this.scene.add(this.skyLight);
 
         this.update = this.update.bind(this);
@@ -116,7 +142,13 @@ export class LightmapTest {
         window.addEventListener('resize', this.resize);
         this.resize();
         
-        this.loadModels().then(() => {
+        Promise.all([
+            this.load_v1_ColorModel(),
+            this.load_v1_GreyscaleModel(),
+            this.load_v2_ColorModel(),
+        ]).then(() => {
+            this.loaded = true;
+
             // Setup mode buttons.
             const buttonParent = document.createElement('div');
             buttonParent.id = 'button-group-lr';
@@ -134,35 +166,46 @@ export class LightmapTest {
                 });
             }
 
-            // Setup sun light checkbox
-            const sunLightToggle = document.createElement('div');
+            this.toggleSunlight = this.toggleSunlight.bind(this);
+            this.toggleSkylight = this.toggleSkylight.bind(this);
 
-            const sunLightCheckbox = document.createElement('input');
-            sunLightCheckbox.type = 'checkbox';
-            sunLightCheckbox.id = 'sun-light';
-            sunLightCheckbox.name = 'sun-light';
-            sunLightCheckbox.defaultChecked = this.sunLightEnabled;
-            sunLightCheckbox.addEventListener('change', () => this.toggleSunlight());
-            sunLightToggle.append(sunLightCheckbox);
+            // Create toggles for lights.
+            const toggleConfigs = [
+                {
+                    id: 'sun-light',
+                    label: 'Sun light',
+                    defaultChecked: this.sunLightEnabled,
+                    onChange: this.toggleSunlight
+                }, {
+                    id: 'sky-light',
+                    label: 'Sky light',
+                    defaultChecked: this.skyLightEnabled,
+                    onChange: this.toggleSkylight
+                }
+            ];
 
-            const sunLightLabel = document.createElement('label');
-            sunLightLabel.htmlFor = 'sun-light';
-            sunLightLabel.textContent = 'Sun light';
-            sunLightToggle.append(sunLightLabel);
+            for (const toggleConfig of toggleConfigs) {
+                const toggleDiv = document.createElement('div');
+    
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = toggleConfig.id;
+                checkbox.name = toggleConfig.id;
+                checkbox.defaultChecked = toggleConfig.defaultChecked;
+                checkbox.addEventListener('change', toggleConfig.onChange);
+                toggleDiv.append(checkbox);
+    
+                const label = document.createElement('label');
+                label.htmlFor = toggleConfig.id;
+                label.textContent = toggleConfig.label;
+                toggleDiv.append(label);
+    
+                buttonParent.append(toggleDiv);
+            }
 
-            buttonParent.append(sunLightToggle);
 
-            this.changeMode('color');
+            this.changeMode('v2 color');
         });
-    }
-
-    async loadModels(): Promise<void> {
-        await Promise.all([
-            this.loadColorModel(),
-            this.loadGreyscaleModel(),
-        ]);
-
-        this.loaded = true;
     }
 
     toggleSunlight(): void {
@@ -170,111 +213,155 @@ export class LightmapTest {
         this.sunLight.visible = this.sunLightEnabled;
     }
 
+    toggleSkylight(): void {
+        this.skyLightEnabled = !this.skyLightEnabled;
+        this.skyLight.visible = this.skyLightEnabled;
+    }
+
     changeMode(mode: Mode): void {
         if (!this.loaded) {
             return;
         }
 
-        this.colorModel.visible = mode === 'color';
-        this.greyscaleModel.visible = mode === 'greyscale';
-
-        if (mode === 'color') {
-            this.skyLight.visible = false;
-        } else if (mode === 'greyscale') {
-            this.skyLight.visible = false;
-        } else {
-            console.error(`Mode ${mode} is not implemented.`);
-        }
+        this.v1_colorModel.visible = mode === 'v1 color';
+        this.v1_greyscaleModel.visible = mode === 'v1 greyscale';
+        this.v2_colorModel.visible = mode === 'v2 color';
 
         this.currentMode = mode;
     }
 
-    async loadColorModel(): Promise<void> {
+    async load_v1_ColorModel(): Promise<void> {
         const gltf = await gltfSmartLoad({
-            gltfUrl: color_workshop_gltf,
-            binUrl: color_workshop_bin,
+            gltfUrl: v1_color_workshop_gltf,
+            binUrl: v1_color_workshop_bin,
             textureUrls: [
-                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: color_limestone_diffuse_tex },
-                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: color_limestone_normal_tex },
-                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: color_atlas_diffuse_tex },
-                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: color_atlas_normal_tex },
-                { filename: 'PillarGenericA_nml.jpg', redirectUrl: color_pillar_normal_tex },
-                { filename: 'Stuc_normal.jpg', redirectUrl: color_stuc_normal_tex },
-                { filename: 'WoodOak_color.png', redirectUrl: color_wood_diffuse_tex },
-                { filename: 'WoodOak_normal.png', redirectUrl: color_wood_normal_tex },
+                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: v1_color_limestone_diffuse_tex },
+                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: v1_color_limestone_normal_tex },
+                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: v1_color_atlas_diffuse_tex },
+                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: v1_color_atlas_normal_tex },
+                { filename: 'PillarGenericA_nml.jpg', redirectUrl: v1_color_pillar_normal_tex },
+                { filename: 'Stuc_normal.jpg', redirectUrl: v1_color_stuc_normal_tex },
+                { filename: 'WoodOak_color.png', redirectUrl: v1_color_wood_diffuse_tex },
+                { filename: 'WoodOak_normal.png', redirectUrl: v1_color_wood_normal_tex },
             ]
         });
 
-        this.colorModel = gltf.scene;
-        this.colorModel.visible = false;
-        this.colorModel.name = 'Phidias Workshop Color';
-        this.scene.add(this.colorModel);
+        this.v1_colorModel = gltf.scene;
+        this.v1_colorModel.visible = false;
+        this.v1_colorModel.name = 'v1 Phidias Workshop Color';
+        this.scene.add(this.v1_colorModel);
 
         // Assign lightmap textures.
-        const meshStuc = this.colorModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
-        this.assignLightmap(meshStuc, color_stuc_lightmap_tex);
+        const meshStuc = this.v1_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
+        this.assignLightmap(meshStuc, v1_color_stuc_lightmap_tex, false);
 
-        const meshPillars = this.colorModel.getObjectByName('PhidiasWorkshop_ModelFixespillars_mesh') as Mesh;
-        this.assignLightmap(meshPillars, color_pillar_lightmap_tex);
+        const meshPillars = this.v1_colorModel.getObjectByName('PhidiasWorkshop_ModelFixespillars_mesh') as Mesh;
+        this.assignLightmap(meshPillars, v1_color_pillar_lightmap_tex, false);
 
-        const meshLimestone = this.colorModel.getObjectByName('PhidiasWorkshop_ModelFixesLimestone_Coquille_mesh') as Mesh;
-        this.assignLightmap(meshLimestone, color_limestone_lightmap_tex);
+        const meshLimestone = this.v1_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesLimestone_Coquille_mesh') as Mesh;
+        this.assignLightmap(meshLimestone, v1_color_limestone_lightmap_tex, false);
 
-        const meshAtlas = this.colorModel.getObjectByName('PhidiasWorkshop_ModelFixesLOD0_PhidiasAtlas_mesh') as Mesh;
-        this.assignLightmap(meshAtlas, color_atlas_lightmap_tex);
+        const meshAtlas = this.v1_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesLOD0_PhidiasAtlas_mesh') as Mesh;
+        this.assignLightmap(meshAtlas, v1_color_atlas_lightmap_tex, false);
 
-        const meshWood = this.colorModel.getObjectByName('PhidiasWorkshop_ModelFixesoak_mesh') as Mesh;
-        this.assignLightmap(meshWood, color_wood_lightmap_tex);
+        const meshWood = this.v1_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesoak_mesh') as Mesh;
+        this.assignLightmap(meshWood, v1_color_wood_lightmap_tex, false);
     }
 
-    async loadGreyscaleModel(): Promise<void> {
+    async load_v1_GreyscaleModel(): Promise<void> {
         const gltf = await gltfSmartLoad({
-            gltfUrl: greyscale_workshop_gltf,
-            binUrl: greyscale_workshop_bin,
+            gltfUrl: v1_greyscale_workshop_gltf,
+            binUrl: v1_greyscale_workshop_bin,
             textureUrls: [
-                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: greyscale_limestone_diffuse_tex },
-                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: greyscale_limestone_normal_tex },
-                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: greyscale_atlas_diffuse_tex },
-                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: greyscale_atlas_normal_tex },
-                { filename: 'PillarGenericA_nml.jpg', redirectUrl: greyscale_pillar_normal_tex },
-                { filename: 'Stuc_normal.jpg', redirectUrl: greyscale_stuc_normal_tex },
-                { filename: 'WoodOak_color.png', redirectUrl: greyscale_wood_diffuse_tex },
-                { filename: 'WoodOak_normal.png', redirectUrl: greyscale_wood_normal_tex },
+                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: v1_greyscale_limestone_diffuse_tex },
+                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: v1_greyscale_limestone_normal_tex },
+                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: v1_greyscale_atlas_diffuse_tex },
+                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: v1_greyscale_atlas_normal_tex },
+                { filename: 'PillarGenericA_nml.jpg', redirectUrl: v1_greyscale_pillar_normal_tex },
+                { filename: 'Stuc_normal.jpg', redirectUrl: v1_greyscale_stuc_normal_tex },
+                { filename: 'WoodOak_color.png', redirectUrl: v1_greyscale_wood_diffuse_tex },
+                { filename: 'WoodOak_normal.png', redirectUrl: v1_greyscale_wood_normal_tex },
             ]
         });
 
-        this.greyscaleModel = gltf.scene;
-        this.greyscaleModel.visible = false;
-        this.greyscaleModel.name = 'Phidias Workshop Greyscale';
-        this.scene.add(this.greyscaleModel);
+        this.v1_greyscaleModel = gltf.scene;
+        this.v1_greyscaleModel.visible = false;
+        this.v1_greyscaleModel.name = 'v1 Phidias Workshop Greyscale';
+        this.scene.add(this.v1_greyscaleModel);
 
         // Assign lightmap textures.
-        const meshStuc = this.greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
-        this.assignLightmap(meshStuc, greyscale_stuc_lightmap_tex);
+        const meshStuc = this.v1_greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
+        this.assignLightmap(meshStuc, v1_greyscale_stuc_lightmap_tex, false);
         // this.assignAoMap(meshStuc, greyscale_stuc_lightmap_tex);
 
-        const meshPillars = this.greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixespillars_mesh') as Mesh;
-        this.assignLightmap(meshPillars, greyscale_pillar_lightmap_tex);
+        const meshPillars = this.v1_greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixespillars_mesh') as Mesh;
+        this.assignLightmap(meshPillars, v1_greyscale_pillar_lightmap_tex, false);
         // this.assignAoMap(meshPillars, greyscale_pillar_lightmap_tex);
 
-        const meshLimestone = this.greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesLimestone_Coquille_mesh') as Mesh;
-        this.assignLightmap(meshLimestone, greyscale_limestone_lightmap_tex);
+        const meshLimestone = this.v1_greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesLimestone_Coquille_mesh') as Mesh;
+        this.assignLightmap(meshLimestone, v1_greyscale_limestone_lightmap_tex, false);
         // this.assignAoMap(meshLimestone, greyscale_limestone_lightmap_tex);
 
-        const meshAtlas = this.greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesLOD0_PhidiasAtlas_mesh') as Mesh;
-        this.assignLightmap(meshAtlas, greyscale_atlas_lightmap_tex);
+        const meshAtlas = this.v1_greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesLOD0_PhidiasAtlas_mesh') as Mesh;
+        this.assignLightmap(meshAtlas, v1_greyscale_atlas_lightmap_tex, false);
         // this.assignAoMap(meshAtlas, greyscale_atlas_lightmap_tex);
 
-        const meshWood = this.greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesoak_mesh') as Mesh;
-        this.assignLightmap(meshWood, greyscale_wood_lightmap_tex);
+        const meshWood = this.v1_greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesoak_mesh') as Mesh;
+        this.assignLightmap(meshWood, v1_greyscale_wood_lightmap_tex, false);
         // this.assignAoMap(meshWood, greyscale_wood_lightmap_tex);
     }
 
-    async assignLightmap(mesh: Mesh, lightmapUrl: string): Promise<void> {
+    async load_v2_ColorModel(): Promise<void> {
+        const gltf = await gltfSmartLoad({
+            gltfUrl: v2_color_workshop_gltf,
+            binUrl: v2_color_workshop_bin,
+            textureUrls: [
+                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: v2_color_limestone_diffuse_tex },
+                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: v2_color_limestone_normal_tex },
+                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: v2_color_atlas_diffuse_tex },
+                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: v2_color_atlas_normal_tex },
+                { filename: 'PillarGenericA_nml.jpg', redirectUrl: v2_color_pillar_normal_tex },
+                { filename: 'Stuc_normal.jpg', redirectUrl: v2_color_stuc_normal_tex },
+                { filename: 'WoodOak_color.png', redirectUrl: v2_color_wood_diffuse_tex },
+                { filename: 'WoodOak_normal.png', redirectUrl: v2_color_wood_normal_tex },
+            ]
+        });
+
+        this.v2_colorModel = gltf.scene;
+        this.v2_colorModel.visible = false;
+        this.v2_colorModel.name = 'v2 Phidias Workshop Color';
+        this.scene.add(this.v2_colorModel);
+
+        // Assign lightmap textures.
+        const meshStuc = this.v2_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
+        this.assignLightmap(meshStuc, v2_color_stuc_lightmap_tex);
+        this.assignAoMap(meshStuc, v2_color_stuc_ao_tex);
+
+        const meshPillars = this.v2_colorModel.getObjectByName('PhidiasWorkshop_ModelFixespillars_mesh') as Mesh;
+        this.assignLightmap(meshPillars, v2_color_pillar_lightmap_tex);
+        this.assignAoMap(meshPillars, v2_color_pillar_ao_tex);
+
+        const meshLimestone = this.v2_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesLimestone_Coquille_mesh') as Mesh;
+        this.assignLightmap(meshLimestone, v2_color_limestone_lightmap_tex);
+        this.assignAoMap(meshLimestone, v2_color_limestone_ao_tex);
+
+        const meshAtlas = this.v2_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesLOD0_PhidiasAtlas_mesh') as Mesh;
+        this.assignLightmap(meshAtlas, v2_color_atlas_lightmap_tex, false);
+        this.assignAoMap(meshAtlas, v2_color_atlas_ao_tex);
+
+        const meshWood = this.v2_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesoak_mesh') as Mesh;
+        this.assignLightmap(meshWood, v2_color_wood_lightmap_tex);
+        this.assignAoMap(meshWood, v2_color_wood_ao_tex);
+    }
+
+    async assignLightmap(mesh: Mesh, lightmapUrl: string, flipY?: boolean): Promise<void> {
         if (!Array.isArray(mesh.material)) {
             const lightmap = await new TextureLoader().loadAsync(lightmapUrl) as Texture;
-            lightmap.flipY = false;
-            lightmap.needsUpdate = true;
+
+            if (flipY !== undefined && flipY !== null) {
+                lightmap.flipY = flipY;
+                lightmap.needsUpdate = true;
+            }
 
             const material = mesh.material as MeshStandardMaterial;
             material.lightMap = lightmap;
@@ -284,11 +371,14 @@ export class LightmapTest {
         }
     }
 
-    async assignAoMap(mesh: Mesh, aoMapUrl: string): Promise<void> {
+    async assignAoMap(mesh: Mesh, aoMapUrl: string, flipY?: boolean): Promise<void> {
         if (!Array.isArray(mesh.material)) {
             const aoMap = await new TextureLoader().loadAsync(aoMapUrl) as Texture;
-            aoMap.flipY = false;
-            aoMap.needsUpdate = true;
+
+            if (flipY !== undefined && flipY !== null) {
+                aoMap.flipY = flipY;
+                aoMap.needsUpdate = true;
+            }
 
             const material = mesh.material as MeshStandardMaterial;
             material.aoMap = aoMap;
