@@ -4,14 +4,44 @@
     "generator": "babylon.js glTF exporter for Maya 2018 v20200721.1"
   },
   "scene": 0,
-  "scenes": [{ "nodes": [0] }],
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
   "nodes": [
-    { "children": [1, 2, 3, 4, 5], "name": "Seperated_by_Mat" },
-    { "mesh": 0, "name": "PhidiasWorkshop_ModelFixes:oak_mesh" },
-    { "mesh": 1, "name": "PhidiasWorkshop_ModelFixes:struc_mesh" },
-    { "mesh": 2, "name": "PhidiasWorkshop_ModelFixes:pillars_mesh" },
-    { "mesh": 3, "name": "PhidiasWorkshop_ModelFixes:Limestone_Coquille_mesh" },
-    { "mesh": 4, "name": "PhidiasWorkshop_ModelFixes:LOD0_PhidiasAtlas_mesh" }
+    {
+      "children": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "name": "Seperated_by_Mat"
+    },
+    {
+      "mesh": 0,
+      "name": "PhidiasWorkshop_ModelFixes:oak_mesh"
+    },
+    {
+      "mesh": 1,
+      "name": "PhidiasWorkshop_ModelFixes:struc_mesh"
+    },
+    {
+      "mesh": 2,
+      "name": "PhidiasWorkshop_ModelFixes:pillars_mesh"
+    },
+    {
+      "mesh": 3,
+      "name": "PhidiasWorkshop_ModelFixes:Limestone_Coquille_mesh"
+    },
+    {
+      "mesh": 4,
+      "name": "PhidiasWorkshop_ModelFixes:LOD0_PhidiasAtlas_mesh"
+    }
   ],
   "meshes": [
     {
@@ -25,7 +55,20 @@
             "TEXCOORD_1": 5
           },
           "indices": 0,
-          "material": 0
+          "material": 0,
+          "mode": 4,
+          "extensions": {
+            "KHR_draco_mesh_compression": {
+              "bufferView": 0,
+              "attributes": {
+                "POSITION": 0,
+                "TANGENT": 1,
+                "NORMAL": 2,
+                "TEXCOORD_0": 3,
+                "TEXCOORD_1": 4
+              }
+            }
+          }
         }
       ],
       "name": "PhidiasWorkshop_ModelFixes:oak_mesh"
@@ -41,7 +84,20 @@
             "TEXCOORD_1": 11
           },
           "indices": 6,
-          "material": 1
+          "material": 1,
+          "mode": 4,
+          "extensions": {
+            "KHR_draco_mesh_compression": {
+              "bufferView": 1,
+              "attributes": {
+                "POSITION": 0,
+                "TANGENT": 1,
+                "NORMAL": 2,
+                "TEXCOORD_0": 3,
+                "TEXCOORD_1": 4
+              }
+            }
+          }
         }
       ],
       "name": "PhidiasWorkshop_ModelFixes:struc_mesh"
@@ -57,7 +113,20 @@
             "TEXCOORD_1": 17
           },
           "indices": 12,
-          "material": 2
+          "material": 2,
+          "mode": 4,
+          "extensions": {
+            "KHR_draco_mesh_compression": {
+              "bufferView": 2,
+              "attributes": {
+                "POSITION": 0,
+                "TANGENT": 1,
+                "NORMAL": 2,
+                "TEXCOORD_0": 3,
+                "TEXCOORD_1": 4
+              }
+            }
+          }
         }
       ],
       "name": "PhidiasWorkshop_ModelFixes:pillars_mesh"
@@ -73,7 +142,20 @@
             "TEXCOORD_1": 23
           },
           "indices": 18,
-          "material": 3
+          "material": 3,
+          "mode": 4,
+          "extensions": {
+            "KHR_draco_mesh_compression": {
+              "bufferView": 3,
+              "attributes": {
+                "POSITION": 0,
+                "TANGENT": 1,
+                "NORMAL": 2,
+                "TEXCOORD_0": 3,
+                "TEXCOORD_1": 4
+              }
+            }
+          }
         }
       ],
       "name": "PhidiasWorkshop_ModelFixes:Limestone_Coquille_mesh"
@@ -89,7 +171,20 @@
             "TEXCOORD_1": 29
           },
           "indices": 24,
-          "material": 4
+          "material": 4,
+          "mode": 4,
+          "extensions": {
+            "KHR_draco_mesh_compression": {
+              "bufferView": 4,
+              "attributes": {
+                "POSITION": 0,
+                "TANGENT": 1,
+                "NORMAL": 2,
+                "TEXCOORD_0": 3,
+                "TEXCOORD_1": 4
+              }
+            }
+          }
         }
       ],
       "name": "PhidiasWorkshop_ModelFixes:LOD0_PhidiasAtlas_mesh"
@@ -97,344 +192,492 @@
   ],
   "accessors": [
     {
-      "bufferView": 0,
       "componentType": 5123,
       "count": 10728,
       "type": "SCALAR",
       "name": "accessorIndices"
     },
     {
-      "bufferView": 1,
       "componentType": 5126,
-      "count": 6849,
-      "max": [15.4816246, 15.89922, 6.67581224],
-      "min": [-15.4816246, 6.078354, -6.67651653],
+      "count": 7004,
+      "max": [
+        15.496750759843675,
+        15.910357898387886,
+        6.695008771807523
+      ],
+      "min": [
+        -15.496750759843673,
+        6.063227840156326,
+        -6.691642689843674
+      ],
       "type": "VEC3",
       "name": "accessorPositions"
     },
     {
-      "bufferView": 2,
       "componentType": 5126,
-      "count": 6849,
+      "count": 7004,
       "type": "VEC4",
       "name": "accessorTangents"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 82188,
       "componentType": 5126,
-      "count": 6849,
+      "count": 7004,
       "type": "VEC3",
       "name": "accessorNormals"
     },
     {
-      "bufferView": 3,
       "componentType": 5126,
-      "count": 6849,
+      "count": 7004,
       "type": "VEC2",
       "name": "accessorUVs"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 54792,
       "componentType": 5126,
-      "count": 6849,
+      "count": 7004,
       "type": "VEC2",
       "name": "accessorUV2s"
     },
     {
-      "bufferView": 0,
-      "byteOffset": 21456,
       "componentType": 5123,
       "count": 21045,
       "type": "SCALAR",
       "name": "accessorIndices"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 164376,
       "componentType": 5126,
-      "count": 11197,
-      "max": [16.7891655, 16.1587467, 7.577326],
-      "min": [-16.3368111, -0.0251506362, -7.57732964],
+      "count": 11316,
+      "max": [
+        16.805348194968246,
+        16.17372702701446,
+        7.585855545246702
+      ],
+      "min": [
+        -16.352993794968246,
+        -0.04133333116824621,
+        -7.5935123349682465
+      ],
       "type": "VEC3",
       "name": "accessorPositions"
     },
     {
-      "bufferView": 2,
-      "byteOffset": 109584,
       "componentType": 5126,
-      "count": 11197,
+      "count": 11316,
       "type": "VEC4",
       "name": "accessorTangents"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 298740,
       "componentType": 5126,
-      "count": 11197,
+      "count": 11316,
       "type": "VEC3",
       "name": "accessorNormals"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 109584,
       "componentType": 5126,
-      "count": 11197,
+      "count": 11316,
       "type": "VEC2",
       "name": "accessorUVs"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 199160,
       "componentType": 5126,
-      "count": 11197,
+      "count": 11316,
       "type": "VEC2",
       "name": "accessorUV2s"
     },
     {
-      "bufferView": 0,
-      "byteOffset": 63548,
       "componentType": 5123,
       "count": 17664,
       "type": "SCALAR",
       "name": "accessorIndices"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 433104,
       "componentType": 5126,
-      "count": 6778,
-      "max": [0.3778363, 9.379679, 4.04728],
-      "min": [-11.3128119, 0.119246483, -4.05887747],
+      "count": 7008,
+      "max": [
+        0.38354741294577366,
+        9.38267168104592,
+        4.05090291299951
+      ],
+      "min": [
+        -11.318523012945773,
+        0.1135353700542257,
+        -4.064588582945774
+      ],
       "type": "VEC3",
       "name": "accessorPositions"
     },
     {
-      "bufferView": 2,
-      "byteOffset": 288736,
       "componentType": 5126,
-      "count": 6778,
+      "count": 7008,
       "type": "VEC4",
       "name": "accessorTangents"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 514440,
       "componentType": 5126,
-      "count": 6778,
+      "count": 7008,
       "type": "VEC3",
       "name": "accessorNormals"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 288736,
       "componentType": 5126,
-      "count": 6778,
+      "count": 7008,
       "type": "VEC2",
       "name": "accessorUVs"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 342960,
       "componentType": 5126,
-      "count": 6778,
+      "count": 7008,
       "type": "VEC2",
       "name": "accessorUV2s"
     },
     {
-      "bufferView": 0,
-      "byteOffset": 98876,
       "componentType": 5123,
       "count": 2058,
       "type": "SCALAR",
       "name": "accessorIndices"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 595776,
       "componentType": 5126,
       "count": 1472,
-      "max": [16.63271, 10.2299986, 7.37978029],
-      "min": [-16.0524654, -0.3414658, -7.63611126],
+      "max": [
+        16.64867735486077,
+        10.244890472691743,
+        7.389169663986321
+      ],
+      "min": [
+        -16.068432754860773,
+        -0.3574331548607719,
+        -7.652078614860772
+      ],
       "type": "VEC3",
       "name": "accessorPositions"
     },
     {
-      "bufferView": 2,
-      "byteOffset": 397184,
       "componentType": 5126,
       "count": 1472,
       "type": "VEC4",
       "name": "accessorTangents"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 613440,
       "componentType": 5126,
       "count": 1472,
       "type": "VEC3",
       "name": "accessorNormals"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 397184,
       "componentType": 5126,
       "count": 1472,
       "type": "VEC2",
       "name": "accessorUVs"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 408960,
       "componentType": 5126,
       "count": 1472,
       "type": "VEC2",
       "name": "accessorUV2s"
     },
     {
-      "bufferView": 0,
-      "byteOffset": 102992,
       "componentType": 5123,
       "count": 111576,
       "type": "SCALAR",
       "name": "accessorIndices"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 631104,
       "componentType": 5126,
-      "count": 43957,
-      "max": [16.8198662, 16.6182823, 7.81263733],
-      "min": [-16.3658657, 0.1707982, -7.81814861],
+      "count": 45674,
+      "max": [
+        16.836078086614556,
+        16.642075000390815,
+        7.826321973048364
+      ],
+      "min": [
+        -16.382077586614557,
+        0.15458631338544213,
+        -7.834360496614558
+      ],
       "type": "VEC3",
       "name": "accessorPositions"
     },
     {
-      "bufferView": 2,
-      "byteOffset": 420736,
       "componentType": 5126,
-      "count": 43957,
+      "count": 45674,
       "type": "VEC4",
       "name": "accessorTangents"
     },
     {
-      "bufferView": 1,
-      "byteOffset": 1158588,
       "componentType": 5126,
-      "count": 43957,
+      "count": 45674,
       "type": "VEC3",
       "name": "accessorNormals"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 420736,
       "componentType": 5126,
-      "count": 43957,
+      "count": 45674,
       "type": "VEC2",
       "name": "accessorUVs"
     },
     {
-      "bufferView": 3,
-      "byteOffset": 772392,
       "componentType": 5126,
-      "count": 43957,
+      "count": 45674,
       "type": "VEC2",
       "name": "accessorUV2s"
     }
   ],
   "bufferViews": [
-    { "buffer": 0, "byteLength": 326144, "name": "bufferViewScalar" },
     {
       "buffer": 0,
-      "byteOffset": 326144,
-      "byteLength": 1686072,
-      "byteStride": 12,
-      "name": "bufferViewFloatVec3"
+      "byteOffset": 0,
+      "byteLength": 134437
     },
     {
       "buffer": 0,
-      "byteOffset": 2012216,
-      "byteLength": 1124048,
-      "byteStride": 16,
-      "name": "bufferViewFloatVec4"
+      "byteOffset": 134440,
+      "byteLength": 223326
     },
     {
       "buffer": 0,
-      "byteOffset": 3136264,
-      "byteLength": 1124048,
-      "byteStride": 8,
-      "name": "bufferViewFloatVec2"
+      "byteOffset": 357768,
+      "byteLength": 135073
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 492844,
+      "byteLength": 28434
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 521280,
+      "byteLength": 879337
     }
   ],
-  "buffers": [{ "uri": "14-PhidiasWorkshop.bin", "byteLength": 4260312 }],
+  "buffers": [
+    {
+      "name": "14-PhidiasWorkshop",
+      "byteLength": 1400620,
+      "uri": "14-PhidiasWorkshop.bin"
+    }
+  ],
   "materials": [
     {
       "pbrMetallicRoughness": {
-        "baseColorTexture": { "index": 1 },
-        "metallicFactor": 0.0,
-        "roughnessFactor": 0.2581639
+        "baseColorTexture": {
+          "index": 1,
+          "texCoord": 0
+        },
+        "metallicFactor": 0,
+        "roughnessFactor": 0.2581639,
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ]
       },
-      "normalTexture": { "index": 0 },
-      "emissiveFactor": [0.2, 0.2, 0.2],
-      "name": "PhidiasWorkshop_ModelFixes:Oak"
+      "normalTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "emissiveFactor": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "name": "PhidiasWorkshop_ModelFixes:Oak",
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
     },
     {
       "pbrMetallicRoughness": {
-        "baseColorFactor": [0.85, 0.8333334, 0.7875, 1.0],
-        "metallicFactor": 0.0,
+        "baseColorFactor": [
+          0.85,
+          0.8333334,
+          0.7875,
+          1
+        ],
+        "metallicFactor": 0,
         "roughnessFactor": 0.2835582
       },
-      "normalTexture": { "index": 2 },
-      "name": "Struc"
+      "normalTexture": {
+        "index": 2,
+        "texCoord": 0
+      },
+      "name": "Struc",
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
     },
     {
       "pbrMetallicRoughness": {
-        "baseColorFactor": [0.82, 0.82, 0.82, 1.0],
-        "metallicFactor": 0.0,
+        "baseColorFactor": [
+          0.82,
+          0.82,
+          0.82,
+          1
+        ],
+        "metallicFactor": 0,
         "roughnessFactor": 0.2835582
       },
-      "normalTexture": { "index": 3 },
-      "name": "Pillar"
+      "normalTexture": {
+        "index": 3,
+        "texCoord": 0
+      },
+      "name": "Pillar",
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
     },
     {
       "pbrMetallicRoughness": {
-        "baseColorTexture": { "index": 5 },
-        "metallicFactor": 0.0,
-        "roughnessFactor": 0.2835582
+        "baseColorTexture": {
+          "index": 5,
+          "texCoord": 0
+        },
+        "metallicFactor": 0,
+        "roughnessFactor": 0.2835582,
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ]
       },
-      "normalTexture": { "index": 4 },
-      "name": "Limestone_Coquille"
+      "normalTexture": {
+        "index": 4,
+        "texCoord": 0
+      },
+      "name": "Limestone_Coquille",
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
     },
     {
       "pbrMetallicRoughness": {
-        "baseColorTexture": { "index": 7 },
-        "metallicFactor": 0.0,
-        "roughnessFactor": 0.2835582
+        "baseColorTexture": {
+          "index": 7,
+          "texCoord": 0
+        },
+        "metallicFactor": 0,
+        "roughnessFactor": 0.2835582,
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ]
       },
-      "normalTexture": { "index": 6 },
-      "name": "PhidiasAtlas"
+      "normalTexture": {
+        "index": 6,
+        "texCoord": 0
+      },
+      "name": "PhidiasAtlas",
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
     }
   ],
   "textures": [
-    { "sampler": 0, "source": 0, "name": "WoodOak_normal.png" },
-    { "sampler": 0, "source": 1, "name": "WoodOak_color.png" },
-    { "sampler": 0, "source": 2, "name": "Stuc_normal.jpg" },
-    { "sampler": 0, "source": 3, "name": "PillarGenericA_nml.jpg" },
-    { "sampler": 0, "source": 4, "name": "LimeStoneCoquille_normal.jpg" },
-    { "sampler": 0, "source": 5, "name": "LimeStoneCoquille_color.jpg" },
-    { "sampler": 0, "source": 6, "name": "PhidiasWorkshop_Atlas_nml.jpg" },
-    { "sampler": 0, "source": 7, "name": "PhidiasWorkshop_Atlas_c.jpg" }
+    {
+      "sampler": 0,
+      "source": 0,
+      "name": "WoodOak_normal.png"
+    },
+    {
+      "sampler": 0,
+      "source": 1,
+      "name": "WoodOak_color.png"
+    },
+    {
+      "sampler": 0,
+      "source": 2,
+      "name": "Stuc_normal.jpg"
+    },
+    {
+      "sampler": 0,
+      "source": 3,
+      "name": "PillarGenericA_nml.jpg"
+    },
+    {
+      "sampler": 0,
+      "source": 4,
+      "name": "LimeStoneCoquille_normal.jpg"
+    },
+    {
+      "sampler": 0,
+      "source": 5,
+      "name": "LimeStoneCoquille_color.jpg"
+    },
+    {
+      "sampler": 0,
+      "source": 6,
+      "name": "PhidiasWorkshop_Atlas_nml.jpg"
+    },
+    {
+      "sampler": 0,
+      "source": 7,
+      "name": "PhidiasWorkshop_Atlas_c.jpg"
+    }
   ],
   "images": [
-    { "uri": "WoodOak_normal.png" },
-    { "uri": "WoodOak_color.png" },
-    { "uri": "Stuc_normal.jpg" },
-    { "uri": "PillarGenericA_nml.jpg" },
-    { "uri": "LimeStoneCoquille_normal.jpg" },
-    { "uri": "LimeStoneCoquille_color.jpg" },
-    { "uri": "PhidiasWorkshop_Atlas_nml.jpg" },
-    { "uri": "PhidiasWorkshop_Atlas_c.jpg" }
+    {
+      "name": "WoodOak_normal",
+      "uri": "WoodOak_normal.png"
+    },
+    {
+      "name": "WoodOak_color",
+      "uri": "WoodOak_color.png"
+    },
+    {
+      "name": "Stuc_normal",
+      "uri": "Stuc_normal.jpg"
+    },
+    {
+      "name": "PillarGenericA_nml",
+      "uri": "PillarGenericA_nml.jpg"
+    },
+    {
+      "name": "LimeStoneCoquille_normal",
+      "uri": "LimeStoneCoquille_normal.jpg"
+    },
+    {
+      "name": "LimeStoneCoquille_color",
+      "uri": "LimeStoneCoquille_color.jpg"
+    },
+    {
+      "name": "PhidiasWorkshop_Atlas_nml",
+      "uri": "PhidiasWorkshop_Atlas_nml.jpg"
+    },
+    {
+      "name": "PhidiasWorkshop_Atlas_c",
+      "uri": "PhidiasWorkshop_Atlas_c.jpg"
+    }
   ],
-  "samplers": [{ "magFilter": 9729, "minFilter": 9987 }]
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "extensionsRequired": [
+    "KHR_draco_mesh_compression"
+  ],
+  "extensionsUsed": [
+    "KHR_draco_mesh_compression"
+  ]
 }

@@ -91,6 +91,7 @@ import v2_color_wood_lightmap_tex from './models/v2-phidias-workshop-color/Oak_L
 import v2_color_wood_diffuse_tex from './models/v2-phidias-workshop-color/WoodOak_color.png';
 import v2_color_wood_normal_tex from './models/v2-phidias-workshop-color/WoodOak_normal.png';
 import Sandbox from "../Sandbox";
+import { precacheObject3DTextures } from "../../utils/MiscUtils";
 
 const modes = [ 'original', 'v1 color', 'v1 greyscale', 'v2 color' ] as const;
 
@@ -362,6 +363,8 @@ export default class LightmapTest extends Sandbox {
         this.orig_model.visible = false;
         this.orig_model.name = 'Original Phidias Workshop';
         this.scene.add(this.orig_model);
+
+        precacheObject3DTextures(this.renderer, this.orig_model);
     }
 
     async load_v1_ColorModel(): Promise<void> {
@@ -384,6 +387,8 @@ export default class LightmapTest extends Sandbox {
         this.v1_colorModel.visible = false;
         this.v1_colorModel.name = 'v1 Phidias Workshop Color';
         this.scene.add(this.v1_colorModel);
+
+        precacheObject3DTextures(this.renderer, this.v1_colorModel);
 
         // Assign lightmap textures.
         const meshStuc = this.v1_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
@@ -422,6 +427,8 @@ export default class LightmapTest extends Sandbox {
         this.v1_greyscaleModel.visible = false;
         this.v1_greyscaleModel.name = 'v1 Phidias Workshop Greyscale';
         this.scene.add(this.v1_greyscaleModel);
+
+        precacheObject3DTextures(this.renderer, this.v1_greyscaleModel);
 
         // Assign lightmap textures.
         const meshStuc = this.v1_greyscaleModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
@@ -466,6 +473,8 @@ export default class LightmapTest extends Sandbox {
         this.v2_colorModel.name = 'v2 Phidias Workshop Color';
         this.scene.add(this.v2_colorModel);
 
+        precacheObject3DTextures(this.renderer, this.v2_colorModel);
+
         // Assign lightmap textures.
         const meshStuc = this.v2_colorModel.getObjectByName('PhidiasWorkshop_ModelFixesstruc_mesh') as Mesh;
         this.assignLightmap(meshStuc, v2_color_stuc_lightmap_tex);
@@ -500,6 +509,8 @@ export default class LightmapTest extends Sandbox {
             const material = mesh.material as MeshStandardMaterial;
             material.lightMap = lightmap;
             material.needsUpdate = true;
+
+            this.renderer.initTexture(lightmap);
         } else {
             console.error(`[assignLightmap] Can't handle mesh with multiple materials.`)
         }
@@ -517,6 +528,8 @@ export default class LightmapTest extends Sandbox {
             const material = mesh.material as MeshStandardMaterial;
             material.aoMap = aoMap;
             material.needsUpdate = true;
+
+            this.renderer.initTexture(aoMap);
         } else {
             console.error(`[assignAoMap] Can't handle mesh with multiple materials.`)
         }

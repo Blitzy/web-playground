@@ -1,3 +1,5 @@
+import { map } from "lodash";
+import { Material, Mesh, MeshBasicMaterial, Object3D, Texture, WebGLRenderer } from "three";
 
 
 export function hasValue(obj: any): boolean {
@@ -175,5 +177,53 @@ export function sortAZ<T, K extends keyof T>(array: T[], propertyKey: K): void {
 export function sortZA<T, K extends keyof T>(array: T[], propertyKey: K): void {
     array.sort((a, b) => {
         return a[propertyKey] < b[propertyKey] ? 1 : -1
+    });
+}
+
+export function getMaterials(mesh: Mesh): Material[] {
+    if (Array.isArray(mesh.material)) {
+        return mesh.material;
+    } else {
+        return [mesh.material];
+    }
+}
+
+const TextureMapNames: string[] = [
+    'map', 'aoMap', 'alphaMap', 'lightMap', 'envMap', 'specularMap', 'bumpMap', 'displacementMap', 'emissiveMap', 'metalnessMap', 'normalMap', 'roughnessMap'
+];
+
+/**
+ * Preload all textures in present underneath the given Object3D.
+ * This will help prevent a GPU decode lag spike for objects with large textures when it becomes visible for the first time.
+ */
+export function precacheObject3DTextures(renderer: WebGLRenderer, object3d: Object3D): void {
+    object3d.traverse((obj3d) => {
+        if (obj3d instanceof Mesh) {
+            // Get materials on mesh.
+            let materials: Material[] = [];
+            if (Array.isArray(obj3d.material)) {
+                materials = obj3d.material;
+            } else {
+                materials = [obj3d.material];
+            }
+
+            const textures = new Set<Texture>();
+
+            for (const material of materials) {
+                for (const mapName of TextureMapNames) {
+                    const m = material as any;
+
+                    if (m[mapName] && m[mapName] instanceof Texture) {
+                        textures.add(m[mapName]);
+                    }
+                }
+            }
+
+            for (const texture of textures) {
+                if (texture) {
+                    renderer.initTexture(texture);
+                }
+            }
+        }
     });
 }
