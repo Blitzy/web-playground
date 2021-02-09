@@ -11,8 +11,9 @@ import {
     HemisphereLight 
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Sandbox from "../Sandbox";
 
-export class OrbitBox {
+export default class OrbitBox extends Sandbox {
 
     renderer: WebGLRenderer;
     scene: Scene;
@@ -20,7 +21,7 @@ export class OrbitBox {
     orbitControls: OrbitControls;
     box: Object3D;
 
-    constructor() {
+    setupRenderer(): void {
         // Setup renderer.
         this.renderer = new WebGLRenderer({
             antialias: true,
@@ -65,6 +66,10 @@ export class OrbitBox {
         this.resize = this.resize.bind(this);
         window.addEventListener('resize', this.resize);
         this.resize();
+    }
+
+    async start(): Promise<void> {
+        this.setupRenderer();
     }
 
     resize(): void {

@@ -168,12 +168,12 @@ function getWebGLInspector() {
 }
 
 export default async function start(args) {
-  console.log('============================================');
-  console.log('=        Rollup Three JS Playground        =');
-  console.log('============================================');
+  console.log('=======================================');
+  console.log('=        Rollup Web Playground        =');
+  console.log('=======================================');
 
   mode = loadArg(args.configMode, MODES);
-  console.log(`Build Three JS Playground in ${mode} mode.`);
+  console.log(`Build Web Playground in ${mode} mode.`);
 
   webglInspector = loadArg(args.configGLI, WEBGLINSPECTOR);
   console.log(`Setting WebGL Inspector to ${webglInspector}.`);

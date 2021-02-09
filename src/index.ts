@@ -1,9 +1,10 @@
-import { APETest } from './sandboxes/ape-test/apeTest';
-import { LightmapTest } from './sandboxes/lightmap-test/lightmapTest';
-import { OrbitBox } from './sandboxes/orbit-box/orbitBox';
-import { Sandbox } from './sandboxes/Sandbox';
+import { loadingScreen } from './LoadingScreen';
+import APETest from './sandboxes/ape-test/APETest';
+import LightmapTest from './sandboxes/lightmap-test/LightmapTest';
+import OrbitBox from './sandboxes/orbit-box/OrbitBox';
+import Sandbox from './sandboxes/Sandbox';
 
-const SandboxMap: Record<string, { new (): Sandbox }> = {
+const SandboxMap: Record<string, { new(): Sandbox }> = {
     'lightmap-test': LightmapTest,
     'orbit-box': OrbitBox,
     'ape-test': APETest,
@@ -12,11 +13,24 @@ const SandboxMap: Record<string, { new (): Sandbox }> = {
 var sandboxIframe: HTMLIFrameElement;
 
 async function init() {
+
     const queryParams = new URLSearchParams(window.location.search);
     const querySandbox = queryParams.get('sandbox');
 
     if (querySandbox && SandboxMap[querySandbox]) {
-        new SandboxMap[querySandbox]();
+        // Setup and show loading screen.
+        loadingScreen.setBackgroundColor('#252629');
+        loadingScreen.setProgressVisible(true);
+        loadingScreen.setProgressIndeterminate();
+        loadingScreen.setTextColor('#fff');
+        loadingScreen.setMessage('Loading');
+        loadingScreen.setVisible(true);
+
+        // Create and start sandbox.
+        const sandbox = new SandboxMap[querySandbox]();
+        await sandbox.start();
+
+        loadingScreen.setVisible(false);
     } else {
         initUI();
         setUIVisible(true);
@@ -56,7 +70,7 @@ function loadSandbox(key: string): void {
     sandboxIframe = document.createElement('iframe');
     sandboxIframe.name = 'sandbox-iframe';
     sandboxIframe.id = 'sandbox-iframe';
-    sandboxIframe.src = `${window.location.origin}?sandbox=${key}`;
+    sandboxIframe.src = `${window.location.origin}${window.location.pathname}?sandbox=${key}`;
 
     document.body.append(sandboxIframe);
 }

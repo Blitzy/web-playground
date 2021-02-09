@@ -13,6 +13,7 @@ import {
     Object3D,
     UnsignedByteType,
     PMREMGenerator,
+    Light,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -89,12 +90,13 @@ import v2_color_wood_ao_tex from './models/v2-phidias-workshop-color/Oak_AO.png'
 import v2_color_wood_lightmap_tex from './models/v2-phidias-workshop-color/Oak_LightMap.png';
 import v2_color_wood_diffuse_tex from './models/v2-phidias-workshop-color/WoodOak_color.png';
 import v2_color_wood_normal_tex from './models/v2-phidias-workshop-color/WoodOak_normal.png';
+import Sandbox from "../Sandbox";
 
 const modes = [ 'original', 'v1 color', 'v1 greyscale', 'v2 color' ] as const;
 
 type Mode = typeof modes[number];
 
-export class LightmapTest {
+export default class LightmapTest extends Sandbox {
 
     renderer: WebGLRenderer;
     scene: Scene;
@@ -115,7 +117,7 @@ export class LightmapTest {
     v1_greyscaleModel: Object3D;
     v2_colorModel: Object3D;
 
-    constructor() {
+    setupRenderer(): void {
         // Setup renderer.
         this.renderer = new WebGLRenderer({
             antialias: true,
@@ -161,11 +163,11 @@ export class LightmapTest {
         this.resize = this.resize.bind(this);
         window.addEventListener('resize', this.resize);
         this.resize();
-        
-        this.start();
     }
 
     async start(): Promise<void> {
+        this.setupRenderer();
+
         await this.load_hdrEnvMap(venice_sunset_hdr);
         // await this.load_hdrEnvMap(sky_hdr);
         // await this.load_ldrEnvMap(sky_ldr);
