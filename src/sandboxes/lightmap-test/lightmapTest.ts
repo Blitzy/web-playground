@@ -24,16 +24,16 @@ import sky_hdr from './envmap/Sky_Orig_BAKELIGHT.hdr';
 import sky_ldr from './envmap/Sky_Orig_BAKELIGHT.jpg';
 
 // Original Phidias Workshop
-import orig_workshop_gltf from './models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';
-import orig_workshop_bin from './models/orig-phidias-workshop/14-PhidiasWorkshop.bin';
-import orig_limestone_diffuse_tex from './models/orig-phidias-workshop/LimeStoneCoquille_color.jpg';
-import orig_limestone_normal_tex from './models/orig-phidias-workshop/LimeStoneCoquille_normal.jpg';
-import orig_atlas_diffuse_tex from './models/orig-phidias-workshop/PhidiasWorkshop_Atlas_c.jpg';
-import orig_atlas_normal_tex from './models/orig-phidias-workshop/PhidiasWorkshop_Atlas_nml.jpg';
-import orig_pillar_normal_tex from './models/orig-phidias-workshop/PillarGenericA_nml.jpg';
-import orig_stuc_normal_tex from './models/orig-phidias-workshop/Stuc_normal.jpg';
-import orig_wood_diffuse_tex from './models/orig-phidias-workshop/WoodOak_color.png';
-import orig_wood_normal_tex from './models/orig-phidias-workshop/WoodOak_normal.png';
+import orig_workshop_gltf from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';
+import orig_workshop_bin from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.bin';
+import orig_limestone_diffuse_tex from '../common/models/orig-phidias-workshop/LimeStoneCoquille_color.jpg';
+import orig_limestone_normal_tex from '../common/models/orig-phidias-workshop/LimeStoneCoquille_normal.jpg';
+import orig_atlas_diffuse_tex from '../common/models/orig-phidias-workshop/PhidiasWorkshop_Atlas_c.jpg';
+import orig_atlas_normal_tex from '../common/models/orig-phidias-workshop/PhidiasWorkshop_Atlas_nml.jpg';
+import orig_pillar_normal_tex from '../common/models/orig-phidias-workshop/PillarGenericA_nml.jpg';
+import orig_stuc_normal_tex from '../common/models/orig-phidias-workshop/Stuc_normal.jpg';
+import orig_wood_diffuse_tex from '../common/models/orig-phidias-workshop/WoodOak_color.png';
+import orig_wood_normal_tex from '../common/models/orig-phidias-workshop/WoodOak_normal.png';
 
 // v1 Phidias Workshop Color
 import v1_color_workshop_gltf from './models/phidias-workshop-color/14-PhidiasWorkshop.gltf';
