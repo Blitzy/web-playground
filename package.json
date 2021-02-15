@@ -11,7 +11,7 @@
     "build:qa": "rollup -c --configMode qa",
     "build:prod": "rollup -c --configMode prod",
     "watch": "rollup -cw --configMode dev",
-    "aws:build:push": "node ./src/tools/AWSPush.js",
+    "s3:build:sync": "npm run build:prod && node ./src/tools/S3Sync.js",
     "serve": "http-server ./dist -p 5000 -c0 --proxy http://localhost:5000?"
   },
   "license": "ISC",
@@ -26,6 +26,7 @@
     "chalk": "^4.1.0",
     "dotenv": "^8.2.0",
     "http-server": "^0.12.3",
+    "mime-types": "^2.1.28",
     "rollup": "^2.10.2",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-delete": "^1.2.0",

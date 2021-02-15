@@ -1,3 +1,4 @@
+import { AppBuildInfo } from './AppBuildInfo';
 import { loadingScreen } from './LoadingScreen';
 import SandboxManifest from './SandboxManifest';
 
@@ -5,6 +6,7 @@ import SandboxManifest from './SandboxManifest';
 var sandboxIframe: HTMLIFrameElement;
 
 async function init() {
+    console.info(`== Web Playground v${AppBuildInfo.version} ==\nDate: ${AppBuildInfo.date().toString()}\nMode: ${AppBuildInfo.mode}`);
 
     const queryParams = new URLSearchParams(window.location.search);
     const querySandbox = queryParams.get('sandbox');

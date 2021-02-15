@@ -1,4 +1,4 @@
-import { CircleProgressBar } from "./CircleProgressBar";
+import { CircleProgressBar } from "./utils/CircleProgressBar";
 
 export type ProgressFrameCallback = () => number;
 

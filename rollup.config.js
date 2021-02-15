@@ -12,6 +12,7 @@ import del from 'rollup-plugin-delete';
 import { terser } from 'rollup-plugin-terser';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import chalk from 'chalk';
+import pkg from './package.json';
 
 const path = require('path');
 
@@ -258,6 +259,9 @@ export default async function start(args) {
   plugins.push(
     replace({
       'process.env.NODE_ENV': JSON.stringify(nodeEnv()),
+      '__web-playground-version__': pkg.version,
+      '__web-playground-build-time__': Date.now().toString(),
+      '__web-playground-build-mode__': buildMode(),
     })
   );
 
