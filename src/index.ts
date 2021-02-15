@@ -2,16 +2,14 @@ import { AppBuildInfo } from './AppBuildInfo';
 import { loadingScreen } from './LoadingScreen';
 import SandboxManifest from './SandboxManifest';
 
-
 var sandboxIframe: HTMLIFrameElement;
 
 async function init() {
-    console.info(`== Web Playground v${AppBuildInfo.version} ==\nDate: ${AppBuildInfo.date().toString()}\nMode: ${AppBuildInfo.mode}`);
-
     const queryParams = new URLSearchParams(window.location.search);
     const querySandbox = queryParams.get('sandbox');
+    const queryInternalLoadSandbox = queryParams.get('internal-load-sandbox');
 
-    if (querySandbox && SandboxManifest[querySandbox]) {
+    if (querySandbox && SandboxManifest[querySandbox] && queryInternalLoadSandbox === 'true') {
         // Setup and show loading screen.
         loadingScreen.setBackgroundColor('#252629');
         loadingScreen.setProgressVisible(true);
@@ -26,8 +24,15 @@ async function init() {
 
         loadingScreen.setVisible(false);
     } else {
+        console.info(`== Web Playground v${AppBuildInfo.version} ==\nDate: ${AppBuildInfo.date().toString()}\nMode: ${AppBuildInfo.mode}`);
+
         initUI();
         setUIVisible(true);
+
+        // If sandbox is in the url, pretend we clicked the button for it.
+        if (querySandbox && SandboxManifest[querySandbox]) {
+            onSandboxButtonClick(querySandbox);
+        }
     }
 }
 
@@ -45,18 +50,22 @@ function initUI(): void {
 
         button.addEventListener('click', (event) => {
             const clickedButton = event.target as HTMLButtonElement;
-
-            // Put the sandbox key in the url query params.
-            const queryParams = new URLSearchParams(window.location.search);
-            queryParams.set('sandbox', clickedButton.id);
-            history.pushState({ 'sandbox': clickedButton.id }, null, `?${queryParams.toString()}`);
-
-            loadSandbox(clickedButton.id);
-            setUIVisible(false);
+            onSandboxButtonClick(clickedButton.id);
         });
 
         buttonParent.append(button);
     }
+}
+
+function onSandboxButtonClick(sandboxId: string): void {
+    // Put the sandbox key in the url query params.
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.set('sandbox', sandboxId);
+
+    history.pushState({ 'sandbox': sandboxId }, null, `?${queryParams.toString()}`);
+
+    loadSandbox(sandboxId);
+    setUIVisible(false);
 }
 
 function loadSandbox(key: string): void {
@@ -64,7 +73,7 @@ function loadSandbox(key: string): void {
     sandboxIframe = document.createElement('iframe');
     sandboxIframe.name = 'sandbox-iframe';
     sandboxIframe.id = 'sandbox-iframe';
-    sandboxIframe.src = `${window.location.origin}${window.location.pathname}?sandbox=${key}`;
+    sandboxIframe.src = `${window.location.origin}${window.location.pathname}?sandbox=${key}&internal-load-sandbox=true`;
 
     document.body.append(sandboxIframe);
 }
@@ -79,18 +88,17 @@ window.addEventListener('load', () => {
 });
 
 window.addEventListener('popstate', (event) => {
-
     if (event.state) {
         if (event.state.sandbox && SandboxManifest[event.state.sandbox]) {
             loadSandbox(event.state.sandbox);
         }
     } else {
+        history.replaceState(null, null, window.location.origin);
+
         if (sandboxIframe) {
             sandboxIframe.remove();
         }
 
         setUIVisible(true);
     }
-
-    console.log(event);
 });

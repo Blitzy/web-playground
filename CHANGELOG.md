@@ -1,8 +1,14 @@
 # Web Playground - Changelog
 
+## v0.1.1 - Feb 15, 2021
+
+### Changes
+
+- Added ability to press back to access the sandbox menu if the page was loaded directly into a sandbox using the `?sandbox` url paremeter.
+
 ## v0.1.0 - Feb 15, 2021
 
-## Changes
+### Changes
 
 - Initial version.
 - Sandboxes includes:

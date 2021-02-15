@@ -1,6 +1,6 @@
 {
   "name": "web-playground",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A ready to use environment for playing with web tech.",
   "repository": "git@github.com:yeticgi/amway-colorful-farm.git",
   "author": "",
@@ -12,7 +12,7 @@
     "build:prod": "rollup -c --configMode prod",
     "watch": "rollup -cw --configMode dev",
     "s3:build:sync": "npm run build:prod && node ./src/tools/S3Sync.js",
-    "serve": "http-server ./dist -p 5000 -c0 --proxy http://localhost:5000?"
+    "serve": "http-server ./dist -p 5000 -c0"
   },
   "license": "ISC",
   "devDependencies": {
