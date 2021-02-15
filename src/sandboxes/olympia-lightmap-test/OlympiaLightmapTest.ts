@@ -14,14 +14,17 @@ import {
     UnsignedByteType,
     PMREMGenerator,
     Light,
+    FrontSide,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
+import Sandbox from "../Sandbox";
+import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 
-import venice_sunset_hdr from './envmap/venice_sunset_1k.hdr';
-import sky_hdr from './envmap/Sky_Orig_BAKELIGHT.hdr';
-import sky_ldr from './envmap/Sky_Orig_BAKELIGHT.jpg';
+import venice_sunset_hdr from '../common/envmap/venice_sunset_1k.hdr';
+import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
+import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
 
 // Original Phidias Workshop
 import orig_workshop_gltf from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';
@@ -90,14 +93,13 @@ import v2_color_wood_ao_tex from './models/v2-phidias-workshop-color/Oak_AO.png'
 import v2_color_wood_lightmap_tex from './models/v2-phidias-workshop-color/Oak_LightMap.png';
 import v2_color_wood_diffuse_tex from './models/v2-phidias-workshop-color/WoodOak_color.png';
 import v2_color_wood_normal_tex from './models/v2-phidias-workshop-color/WoodOak_normal.png';
-import Sandbox from "../Sandbox";
-import { precacheObject3DTextures } from "../../utils/MiscUtils";
+import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 
 const modes = [ 'original', 'v1 color', 'v1 greyscale', 'v2 color' ] as const;
 
 type Mode = typeof modes[number];
 
-export default class LightmapTest extends Sandbox {
+export default class OlympiaLightmapTest extends Sandbox {
 
     renderer: WebGLRenderer;
     scene: Scene;
@@ -359,6 +361,8 @@ export default class LightmapTest extends Sandbox {
             ]
         });
 
+        this.setAllMaterialsFrontSided(gltf);
+
         this.orig_model = gltf.scene;
         this.orig_model.visible = false;
         this.orig_model.name = 'Original Phidias Workshop';
@@ -382,6 +386,8 @@ export default class LightmapTest extends Sandbox {
                 { filename: 'WoodOak_normal.png', redirectUrl: v1_color_wood_normal_tex },
             ]
         });
+
+        this.setAllMaterialsFrontSided(gltf);
 
         this.v1_colorModel = gltf.scene;
         this.v1_colorModel.visible = false;
@@ -422,6 +428,8 @@ export default class LightmapTest extends Sandbox {
                 { filename: 'WoodOak_normal.png', redirectUrl: v1_greyscale_wood_normal_tex },
             ]
         });
+
+        this.setAllMaterialsFrontSided(gltf);
 
         this.v1_greyscaleModel = gltf.scene;
         this.v1_greyscaleModel.visible = false;
@@ -467,6 +475,8 @@ export default class LightmapTest extends Sandbox {
                 { filename: 'WoodOak_normal.png', redirectUrl: v2_color_wood_normal_tex },
             ]
         });
+
+        this.setAllMaterialsFrontSided(gltf);
 
         this.v2_colorModel = gltf.scene;
         this.v2_colorModel.visible = false;
@@ -533,6 +543,20 @@ export default class LightmapTest extends Sandbox {
         } else {
             console.error(`[assignAoMap] Can't handle mesh with multiple materials.`)
         }
+    }
+
+    setAllMaterialsFrontSided(gltf: GLTF): void {
+        gltf.scene.traverse((obj3d) => {
+            if (obj3d instanceof Mesh) {
+                // TEMP FIX: Force all materials to front sided rendered.
+                const materials = getMaterials(obj3d);
+                if (materials) {
+                    for (const material of materials) {
+                        material.side = FrontSide;
+                    }
+                }
+            }
+        });
     }
 
     resize(): void {

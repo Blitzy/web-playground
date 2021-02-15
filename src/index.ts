@@ -1,14 +1,6 @@
 import { loadingScreen } from './LoadingScreen';
-import APETest from './sandboxes/ape-test/APETest';
-import LightmapTest from './sandboxes/lightmap-test/LightmapTest';
-import OrbitBox from './sandboxes/orbit-box/OrbitBox';
-import Sandbox from './sandboxes/Sandbox';
+import SandboxManifest from './SandboxManifest';
 
-const SandboxMap: Record<string, { new(): Sandbox }> = {
-    'lightmap-test': LightmapTest,
-    'orbit-box': OrbitBox,
-    'ape-test': APETest,
-}
 
 var sandboxIframe: HTMLIFrameElement;
 
@@ -17,7 +9,7 @@ async function init() {
     const queryParams = new URLSearchParams(window.location.search);
     const querySandbox = queryParams.get('sandbox');
 
-    if (querySandbox && SandboxMap[querySandbox]) {
+    if (querySandbox && SandboxManifest[querySandbox]) {
         // Setup and show loading screen.
         loadingScreen.setBackgroundColor('#252629');
         loadingScreen.setProgressVisible(true);
@@ -27,7 +19,7 @@ async function init() {
         loadingScreen.setVisible(true);
 
         // Create and start sandbox.
-        const sandbox = new SandboxMap[querySandbox]();
+        const sandbox = new SandboxManifest[querySandbox]();
         await sandbox.start();
 
         loadingScreen.setVisible(false);
@@ -42,7 +34,7 @@ function initUI(): void {
     buttonParent.id = 'sandbox-buttons';
     document.body.append(buttonParent);
 
-    const sandboxKeys = Object.keys(SandboxMap);
+    const sandboxKeys = Object.keys(SandboxManifest);
 
     for (const key of sandboxKeys) {
         const button: HTMLButtonElement = document.createElement('button');
@@ -87,7 +79,7 @@ window.addEventListener('load', () => {
 window.addEventListener('popstate', (event) => {
 
     if (event.state) {
-        if (event.state.sandbox && SandboxMap[event.state.sandbox]) {
+        if (event.state.sandbox && SandboxManifest[event.state.sandbox]) {
             loadSandbox(event.state.sandbox);
         }
     } else {
