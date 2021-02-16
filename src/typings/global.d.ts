@@ -47,3 +47,7 @@ declare module '*.hdr' {
     const url: string;
     export default url;
 }
+
+declare module 'three/examples/jsm/csm/CSM' {
+    export const CSM: any;
+}

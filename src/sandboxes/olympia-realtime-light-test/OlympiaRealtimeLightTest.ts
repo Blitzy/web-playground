@@ -22,6 +22,10 @@ import {
     LinearFilter,
     WebGLCapabilities,
     LinearMipmapLinearFilter,
+    PlaneBufferGeometry,
+    VSMShadowMap,
+    CameraHelper,
+    Group,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -30,8 +34,12 @@ import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 import Sandbox from "../Sandbox";
 import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 import Stats from "stats.js";
+import { createOlympiaTerrain } from "./olympia-terrain/OlympiaTerrain";
+import { CSM } from 'three/examples/jsm/csm/CSM';
 
 import venice_sunset_hdr from '../common/envmap/venice_sunset_1k.hdr';
+import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
+import venice_sunset_dusk_high_contrast_hdr from '../common/envmap/venice_sunset_dusk_high_contrast_1k.hdr';
 import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
 import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
 
@@ -54,12 +62,15 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
 
+    sunLightGroup: Group;
     sunLight: DirectionalLight;
     sunLightHelper: DirectionalLightHelper;
+    sunShadowHelper: CameraHelper;
     skyLight: HemisphereLight;
 
     envMap: Texture;
     orig_model: Object3D;
+    terrain: Object3D;
     stats: Stats;
 
     loaded: boolean;
@@ -69,12 +80,15 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.renderer = new WebGLRenderer({
             antialias: true,
             alpha: true,
-            powerPreference: 'high-performance'
+            powerPreference: 'high-performance',
         });
 
         this.renderer.outputEncoding = sRGBEncoding;
         // this.renderer.toneMapping = ACESFilmicToneMapping;
         // this.renderer.toneMappingExposure = 1;
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = VSMShadowMap;
+        // this.renderer.shadowMap.autoUpdate = false;
         document.body.appendChild(this.renderer.domElement);
         
         // Setup stats.
@@ -87,27 +101,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         // Setup camera.
         this.camera = new PerspectiveCamera(60);
-        this.camera.position.z = 0;
-        this.camera.position.y = 3;
-        this.camera.position.x = 10;
         this.scene.add(this.camera);
-        this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.orbitControls.target.y = 3;
-
-        // Add light to scene.
-        this.sunLight = new DirectionalLight('#e6ba87', 1);
-        this.sunLight.name = 'Sun Light';
-        this.sunLight.target.name = 'Sun Light Target';
-        this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
-        this.sunLight.position.set(0, 50, 0);
-        this.sunLight.target.position.set(-45, 0, -35);
-        this.scene.add(this.sunLight);
-        this.scene.add(this.sunLight.target);
-        this.scene.add(this.sunLightHelper);
-        
-        this.skyLight = new HemisphereLight('#737063', '#737063', 0.025);
-        this.skyLight.name = 'Sky Light';
-        this.scene.add(this.skyLight);
 
         this.update = this.update.bind(this);
         this.renderer.setAnimationLoop(this.update);
@@ -120,14 +114,63 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     async start(): Promise<void> {
         this.setupRenderer();
 
+        // Setup camera controls.
+        this.camera.position.z = 0;
+        this.camera.position.y = 3;
+        this.camera.position.x = 10;
+        this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.orbitControls.target.y = 3;
+
+        // Add light to scene.
+        this.sunLightGroup = new Group();
+        this.sunLightGroup.name = 'Sun Light Group';
+        
+        this.sunLight = new DirectionalLight('#e6ba87', 1);
+        this.sunLight.name = 'Sun Light';
+        this.sunLight.target.name = 'Sun Light Target';
+        this.sunLight.castShadow = true;
+        this.sunLight.position.set(300, 300, 300);
+        this.sunLight.target.position.set(0, 0, 0);
+
+        const shadowFrustumSize = 100;
+        this.sunLight.shadow.camera.left = -shadowFrustumSize;
+        this.sunLight.shadow.camera.right = shadowFrustumSize;
+        this.sunLight.shadow.camera.top = shadowFrustumSize;
+        this.sunLight.shadow.camera.bottom = -shadowFrustumSize;
+        this.sunLight.shadow.camera.far = 1000;
+        this.sunLight.shadow.mapSize.set(2048, 2048);
+        this.sunLight.shadow.bias = -0.0001;
+        this.sunLight.shadow.radius = 6;
+
+        this.sunLightGroup.add(this.sunLight);
+        this.sunLightGroup.add(this.sunLight.target);
+
+        this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
+        this.sunShadowHelper = new CameraHelper(this.sunLight.shadow.camera);
+
+        (window as any).renderer = this.renderer;
+        (window as any).sunLight = this.sunLight;
+        
+        this.scene.add(this.sunLightGroup);
+        this.scene.add(this.sunShadowHelper);
+        this.scene.add(this.sunLightHelper);
+        
+        this.skyLight = new HemisphereLight('#737063', '#000', 0);
+        this.skyLight.name = 'Sky Light';
+        this.scene.add(this.skyLight);
+
         // await this.load_hdrEnvMap(venice_sunset_hdr);
+        await this.load_hdrEnvMap(venice_sunset_dusk_hdr);
+        // await this.load_hdrEnvMap(venice_sunset_dusk_high_contrast_hdr);
         // await this.load_hdrEnvMap(sky_hdr);
         // await this.load_ldrEnvMap(sky_ldr);
 
         this.scene.environment = this.envMap;
 
+        await this.load_terrain();
         await this.load_origModel();
 
+        // this.renderer.shadowMap.needsUpdate = true;
         this.loaded = true;
     }
 
@@ -164,18 +207,24 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                 undefined,
                 reject
             );
-
-            // new RGBELoader().setDataType(UnsignedByteType).load(url, 
-            //     (texture) => {
-            //         this.envMap = pmremGenerator.fromEquirectangular(texture).texture;
-            //         pmremGenerator.dispose();
-
-            //         resolve();
-            //     },
-            //     undefined,
-            //     reject
-            // );
         });
+    }
+
+    async load_terrain(): Promise<void> {
+        this.terrain = await createOlympiaTerrain();
+        this.terrain.name = 'Terrain';
+
+        // Transform terrain so that the workshop building is roughly where it should be.
+        this.terrain.position.set(371.300, -20.500, -170.130);
+        this.terrain.rotation.y = Math.PI / 2;
+
+        // Enable shadow casting and receiving.
+        this.terrain.traverse((obj3d) => {
+            obj3d.receiveShadow = true;
+            obj3d.castShadow = true;
+        });
+
+        this.scene.add(this.terrain);
     }
 
     async load_origModel(): Promise<void> {
@@ -195,6 +244,10 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         });
 
         gltf.scene.traverse((obj3d) => {
+            // Enable shadow casting and receiving.
+            obj3d.receiveShadow = true;
+            obj3d.castShadow = true;
+
             if (obj3d instanceof Mesh) {
                 const materials = getMaterials(obj3d);
                 if (materials) {
@@ -245,6 +298,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         this.orbitControls.update();
         this.sunLightHelper.update();
+        this.sunShadowHelper.update();
 
         this.renderer.render(this.scene, this.camera);
 

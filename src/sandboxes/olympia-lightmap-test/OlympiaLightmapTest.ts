@@ -22,7 +22,7 @@ import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 import Sandbox from "../Sandbox";
 import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 
-import venice_sunset_hdr from '../common/envmap/venice_sunset_1k.hdr';
+import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
 import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
 import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
 
@@ -171,7 +171,7 @@ export default class OlympiaLightmapTest extends Sandbox {
     async start(): Promise<void> {
         this.setupRenderer();
 
-        await this.load_hdrEnvMap(venice_sunset_hdr);
+        await this.load_hdrEnvMap(venice_sunset_dusk_hdr);
         // await this.load_hdrEnvMap(sky_hdr);
         // await this.load_ldrEnvMap(sky_ldr);
 
