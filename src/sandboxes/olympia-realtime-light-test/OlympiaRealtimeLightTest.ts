@@ -15,7 +15,6 @@ import {
     Mesh,
     BufferGeometry,
     FrontSide,
-    Geometry,
     NormalMapTypes,
     ObjectSpaceNormalMap,
     TextureFilter,
@@ -26,6 +25,8 @@ import {
     VSMShadowMap,
     CameraHelper,
     Group,
+    PCFSoftShadowMap,
+    Vector3,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -36,6 +37,7 @@ import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 import Stats from "stats.js";
 import { createOlympiaTerrain } from "./olympia-terrain/OlympiaTerrain";
 import { CSM } from 'three/examples/jsm/csm/CSM';
+import { CSMHelper } from 'three/examples/jsm/csm/CSMHelper';
 
 import venice_sunset_hdr from '../common/envmap/venice_sunset_1k.hdr';
 import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
@@ -54,6 +56,7 @@ import orig_pillar_normal_tex from '../common/models/orig-phidias-workshop/Pilla
 import orig_stuc_normal_tex from '../common/models/orig-phidias-workshop/Stuc_normal.jpg';
 import orig_wood_diffuse_tex from '../common/models/orig-phidias-workshop/WoodOak_color.png';
 import orig_wood_normal_tex from '../common/models/orig-phidias-workshop/WoodOak_normal.png';
+import dat from "dat.gui";
 
 export default class OlympiaRealtimeLightTest extends Sandbox {
 
@@ -62,18 +65,20 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
 
-    sunLightGroup: Group;
-    sunLight: DirectionalLight;
-    sunLightHelper: DirectionalLightHelper;
-    sunShadowHelper: CameraHelper;
+    // sunLightGroup: Group;
+    // sunLight: DirectionalLight;
+    // sunLightHelper: DirectionalLightHelper;
+    // sunShadowHelper: CameraHelper;
+    csm: CSM
+    csmHelper: CSMHelper;
     skyLight: HemisphereLight;
 
+    loaded: boolean;
     envMap: Texture;
     orig_model: Object3D;
     terrain: Object3D;
     stats: Stats;
-
-    loaded: boolean;
+    gui: dat.GUI;
 
     setupRenderer(): void {
         // Setup renderer.
@@ -87,7 +92,8 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // this.renderer.toneMapping = ACESFilmicToneMapping;
         // this.renderer.toneMappingExposure = 1;
         this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = VSMShadowMap;
+        // this.renderer.shadowMap.type = VSMShadowMap;
+        this.renderer.shadowMap.type = PCFSoftShadowMap;
         // this.renderer.shadowMap.autoUpdate = false;
         document.body.appendChild(this.renderer.domElement);
         
@@ -122,38 +128,41 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.orbitControls.target.y = 3;
 
         // Add light to scene.
-        this.sunLightGroup = new Group();
-        this.sunLightGroup.name = 'Sun Light Group';
+        // this.sunLightGroup = new Group();
+        // this.sunLightGroup.name = 'Sun Light Group';
         
-        this.sunLight = new DirectionalLight('#e6ba87', 1);
-        this.sunLight.name = 'Sun Light';
-        this.sunLight.target.name = 'Sun Light Target';
-        this.sunLight.castShadow = true;
-        this.sunLight.position.set(300, 300, 300);
-        this.sunLight.target.position.set(0, 0, 0);
+        // this.sunLight = new DirectionalLight('#e6ba87', 1);
+        // this.sunLight.name = 'Sun Light';
+        // this.sunLight.target.name = 'Sun Light Target';
+        // this.sunLight.castShadow = true;
+        // this.sunLight.position.set(300, 300, 300);
+        // this.sunLight.target.position.set(0, 0, 0);
 
-        const shadowFrustumSize = 100;
-        this.sunLight.shadow.camera.left = -shadowFrustumSize;
-        this.sunLight.shadow.camera.right = shadowFrustumSize;
-        this.sunLight.shadow.camera.top = shadowFrustumSize;
-        this.sunLight.shadow.camera.bottom = -shadowFrustumSize;
-        this.sunLight.shadow.camera.far = 1000;
-        this.sunLight.shadow.mapSize.set(2048, 2048);
-        this.sunLight.shadow.bias = -0.0001;
-        this.sunLight.shadow.radius = 6;
+        // const shadowFrustumSize = 100;
+        // this.sunLight.shadow.camera.left = -shadowFrustumSize;
+        // this.sunLight.shadow.camera.right = shadowFrustumSize;
+        // this.sunLight.shadow.camera.top = shadowFrustumSize;
+        // this.sunLight.shadow.camera.bottom = -shadowFrustumSize;
+        // this.sunLight.shadow.camera.far = 1000;
+        // this.sunLight.shadow.mapSize.set(2048, 2048);
+        // this.sunLight.shadow.bias = -0.0001;
+        // this.sunLight.shadow.radius = 6;
 
-        this.sunLightGroup.add(this.sunLight);
-        this.sunLightGroup.add(this.sunLight.target);
+        // this.sunLightGroup.add(this.sunLight);
+        // this.sunLightGroup.add(this.sunLight.target);
 
-        this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
-        this.sunShadowHelper = new CameraHelper(this.sunLight.shadow.camera);
+        // this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
+        // this.sunShadowHelper = new CameraHelper(this.sunLight.shadow.camera);
+
+        // Add cascaded shadow mapping to scene.
+        // this.csm = new CSM()
 
         (window as any).renderer = this.renderer;
-        (window as any).sunLight = this.sunLight;
+        // (window as any).sunLight = this.sunLight;
         
-        this.scene.add(this.sunLightGroup);
-        this.scene.add(this.sunShadowHelper);
-        this.scene.add(this.sunLightHelper);
+        // this.scene.add(this.sunLightGroup);
+        // this.scene.add(this.sunShadowHelper);
+        // this.scene.add(this.sunLightHelper);
         
         this.skyLight = new HemisphereLight('#737063', '#000', 0);
         this.skyLight.name = 'Sky Light';
@@ -169,6 +178,11 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         await this.load_terrain();
         await this.load_origModel();
+
+        // Setup dat gui.
+        this.gui = new dat.GUI();
+
+        this.gui.updateDisplay();
 
         // this.renderer.shadowMap.needsUpdate = true;
         this.loaded = true;
@@ -297,8 +311,8 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.stats.begin();
 
         this.orbitControls.update();
-        this.sunLightHelper.update();
-        this.sunShadowHelper.update();
+        // this.sunLightHelper.update();
+        // this.sunShadowHelper.update();
 
         this.renderer.render(this.scene, this.camera);
 

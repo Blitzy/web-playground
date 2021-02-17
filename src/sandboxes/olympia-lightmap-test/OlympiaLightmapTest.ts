@@ -21,6 +21,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 import Sandbox from "../Sandbox";
 import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
+import dat from "dat.gui";
 
 import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
 import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
@@ -105,15 +106,22 @@ export default class OlympiaLightmapTest extends Sandbox {
     scene: Scene;
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
-
+    
     sunLight: DirectionalLight;
     // sunLightHelper: DirectionalLightHelper;
     skyLight: HemisphereLight;
 
     envMap: Texture;
-
+    envMapVisible: boolean = false;
+    
     loaded: boolean;
-    currentMode: Mode;
+    currentMode: Mode = 'v2 color';
+
+    gui: dat.GUI;
+    currentModeController: dat.GUIController;
+    sunLightController: dat.GUIController;
+    skyLightController: dat.GUIController;
+    envMapController: dat.GUIController;
 
     orig_model: Object3D;
     v1_colorModel: Object3D;
@@ -142,6 +150,19 @@ export default class OlympiaLightmapTest extends Sandbox {
         this.camera.position.y = 3;
         this.camera.position.x = 10;
         this.scene.add(this.camera);
+
+        this.update = this.update.bind(this);
+        this.renderer.setAnimationLoop(this.update);
+
+        this.resize = this.resize.bind(this);
+        window.addEventListener('resize', this.resize);
+        this.resize();
+    }
+
+    async start(): Promise<void> {
+        this.setupRenderer();
+
+        // Setup camera controls.
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
         this.orbitControls.target.y = 3;
 
@@ -160,17 +181,6 @@ export default class OlympiaLightmapTest extends Sandbox {
         this.skyLight.name = 'Sky Light';
         this.scene.add(this.skyLight);
 
-        this.update = this.update.bind(this);
-        this.renderer.setAnimationLoop(this.update);
-
-        this.resize = this.resize.bind(this);
-        window.addEventListener('resize', this.resize);
-        this.resize();
-    }
-
-    async start(): Promise<void> {
-        this.setupRenderer();
-
         await this.load_hdrEnvMap(venice_sunset_dusk_hdr);
         // await this.load_hdrEnvMap(sky_hdr);
         // await this.load_ldrEnvMap(sky_ldr);
@@ -182,79 +192,23 @@ export default class OlympiaLightmapTest extends Sandbox {
             this.load_v2_ColorModel(),
         ]);
 
-        // Setup mode buttons.
-        const buttonParent = document.createElement('div');
-        buttonParent.id = 'button-group-lr';
+        // Setup dat gui.
+        this.gui = new dat.GUI();
 
-        document.body.append(buttonParent);
+        this.currentModeController = this.gui.add(this, 'currentMode', modes).name('model mode').onChange((value: Mode) => {
+            this.changeMode(value);
+        });
 
-        for (const mode of modes) {
-            const button = document.createElement('button');
-            button.id = mode;
-            button.textContent = mode;
-            buttonParent.append(button);
+        const lightingFolder = this.gui.addFolder('lighting');
 
-            button.addEventListener('click', (event) => {
-                this.changeMode(mode);
-            });
-        }
-
-        this.onSunLightCheckboxChange = this.onSunLightCheckboxChange.bind(this);
-        this.onSkyLightCheckboxChange = this.onSkyLightCheckboxChange.bind(this);
-        this.onEnvMapCheckboxChange = this.onEnvMapCheckboxChange.bind(this);
-
-        // Create toggles.
-        const toggleConfigs = [
-            {
-                id: 'sun-light',
-                label: 'Sun light',
-                onChange: this.onSunLightCheckboxChange
-            }, {
-                id: 'sky-light',
-                label: 'Sky light',
-                onChange: this.onSkyLightCheckboxChange
-            }, {
-                id: 'env-map',
-                label: 'Environment Map',
-                onChange: this.onEnvMapCheckboxChange
-            }
-        ];
-
-        for (const toggleConfig of toggleConfigs) {
-            const toggleDiv = document.createElement('div');
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = toggleConfig.id;
-            checkbox.name = toggleConfig.id;
-            checkbox.addEventListener('change', toggleConfig.onChange);
-            toggleDiv.append(checkbox);
-
-            const label = document.createElement('label');
-            label.htmlFor = toggleConfig.id;
-            label.textContent = toggleConfig.label;
-            toggleDiv.append(label);
-
-            buttonParent.append(toggleDiv);
-        }
+        this.sunLightController = lightingFolder.add(this.sunLight, 'visible').name('sun light');
+        this.skyLightController = lightingFolder.add(this.skyLight, 'visible').name('sky light');
+        this.envMapController = lightingFolder.add(this, 'envMapVisible').name('environment map').onChange((value: boolean) => {
+            this.scene.environment = value ? this.envMap : null;
+        });
 
         this.loaded = true;
-        this.changeMode('v2 color');
-    }
-
-    onSunLightCheckboxChange(): void {
-        const sunLightCheckbox = document.getElementById('sun-light') as HTMLInputElement;
-        this.sunLight.visible = sunLightCheckbox.checked;
-    }
-
-    onSkyLightCheckboxChange(): void {
-        const skyLightCheckbox = document.getElementById('sky-light') as HTMLInputElement;
-        this.skyLight.visible = skyLightCheckbox.checked;
-    }
-
-    onEnvMapCheckboxChange(): void {
-        const envMapCheckbox = document.getElementById('env-map') as HTMLInputElement;
-        this.scene.environment = envMapCheckbox.checked ? this.envMap : null;
+        this.changeMode(this.currentMode);
     }
 
     changeMode(mode: Mode): void {
@@ -266,36 +220,29 @@ export default class OlympiaLightmapTest extends Sandbox {
         this.v1_colorModel.visible = mode === 'v1 color';
         this.v1_greyscaleModel.visible = mode === 'v1 greyscale';
         this.v2_colorModel.visible = mode === 'v2 color';
-
-        const sunLightCheckbox = document.getElementById('sun-light') as HTMLInputElement;
-        const skyLightCheckbox = document.getElementById('sky-light') as HTMLInputElement;
-        const envMapCheckbox = document.getElementById('env-map') as HTMLInputElement;
-
+        
         if (mode === 'original') {
-            sunLightCheckbox.checked = true;
-            skyLightCheckbox.checked = true;
-            envMapCheckbox.checked = false;
+            this.sunLightController.setValue(true);
+            this.skyLightController.setValue(true);
+            this.envMapController.setValue(false);
         } else if (mode === 'v1 color') {
-            sunLightCheckbox.checked = false;
-            skyLightCheckbox.checked = false;
-            envMapCheckbox.checked = false;
+            this.sunLightController.setValue(false);
+            this.skyLightController.setValue(false);
+            this.envMapController.setValue(false);
         } else if (mode === 'v1 greyscale') {
-            sunLightCheckbox.checked = false;
-            skyLightCheckbox.checked = false;
-            envMapCheckbox.checked = false;
+            this.sunLightController.setValue(false);
+            this.skyLightController.setValue(false);
+            this.envMapController.setValue(false);
         } else if (mode === 'v2 color') {
-            sunLightCheckbox.checked = false;
-            skyLightCheckbox.checked = false;
-            envMapCheckbox.checked = true;
+            this.sunLightController.setValue(false);
+            this.skyLightController.setValue(false);
+            this.envMapController.setValue(true);
         } else {
             console.error(`Mode ${mode} is not implemented.`)
         }
 
-        this.onSunLightCheckboxChange();
-        this.onSkyLightCheckboxChange();
-        this.onEnvMapCheckboxChange();
-
         this.currentMode = mode;
+        this.gui.updateDisplay();
     }
 
     async load_hdrEnvMap(url: string): Promise<void> {
