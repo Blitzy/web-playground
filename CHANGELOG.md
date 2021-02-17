@@ -1,5 +1,18 @@
 # Web Playground - Changelog
 
+## v0.1.2 - Feb 17, 2021
+
+### Changes
+
+- Upgraded three from r116 to r125.
+- Upgraded draco decoder library.
+- Started using dat.gui for controls. Converted olympia-lightmap-test buttons/toggles to dat.gui.
+- Created dat.gui.utils file for extender helper functions related to dat.gui.
+  - `addVector3`
+  - `addEuler`
+- Added cascaded shadow mapping and placeholder cube buildings to olympia realtime light test.
+- Adjusted lighting settings into olympia realtime light test.
+  
 ## v0.1.1 - Feb 15, 2021
 
 ### Changes
