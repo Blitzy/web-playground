@@ -7,33 +7,25 @@ import {
     HemisphereLight,
     TextureLoader,
     Texture,
-    DirectionalLightHelper,
     Object3D,
     UnsignedByteType,
     PMREMGenerator,
     MeshStandardMaterial,
     Mesh,
-    BufferGeometry,
     FrontSide,
-    NormalMapTypes,
-    ObjectSpaceNormalMap,
-    TextureFilter,
-    LinearFilter,
-    WebGLCapabilities,
     LinearMipmapLinearFilter,
-    PlaneBufferGeometry,
     VSMShadowMap,
-    CameraHelper,
     Group,
     PCFSoftShadowMap,
     Vector3,
     Color,
     BoxBufferGeometry,
-    Vector2,
+    BasicShadowMap,
+    PCFShadowMap,
+    ShadowMapType,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 import Sandbox from "../Sandbox";
 import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
@@ -41,6 +33,9 @@ import Stats from "stats.js";
 import { createOlympiaTerrain } from "./olympia-terrain/OlympiaTerrain";
 import { CSM } from 'three/examples/jsm/csm/CSM';
 import { CSMHelper } from 'three/examples/jsm/csm/CSMHelper';
+import Bowser from 'bowser';
+import dat from "dat.gui";
+import { CSMUtils } from "../common/CSMUtils";
 
 import venice_sunset_hdr from '../common/envmap/venice_sunset_1k.hdr';
 import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
@@ -59,8 +54,6 @@ import orig_pillar_normal_tex from '../common/models/orig-phidias-workshop/Pilla
 import orig_stuc_normal_tex from '../common/models/orig-phidias-workshop/Stuc_normal.jpg';
 import orig_wood_diffuse_tex from '../common/models/orig-phidias-workshop/WoodOak_color.png';
 import orig_wood_normal_tex from '../common/models/orig-phidias-workshop/WoodOak_normal.png';
-import dat from "dat.gui";
-import { CSMUtils } from "../common/CSMUtils";
 
 interface CubeConfig {
     position: { x: number, y: number, z: number };
@@ -75,7 +68,6 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
 
-
     // sunLightGroup: Group;
     // sunLight: DirectionalLight;
     // sunLightHelper: DirectionalLightHelper;
@@ -83,17 +75,20 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     csm: CSM
     csmHelper: CSMHelper;
     csmParams = {
-        orthographic: false,
-        fade: false,
-        far: 1000,
+        fade: true,
+        cascades: 4,
+        maxFar: 500,
+        shadowMapSize: 2048,
+        shadowBias: 0.00001,
         mode: 'practical',
-        lightX: - 1,
-        lightY: - 1,
-        lightZ: - 1,
-        margin: 100,
-        lightFar: 5000,
+        lightX: -1,
+        lightY: -1,
+        lightZ: -1,
+        lightIntensity: 1,
+        lightMargin: 200,
+        lightFar: 1000,
         lightNear: 1,
-        autoUpdateHelper: true,
+        autoUpdate: true,
         updateHelper: () => {
             this.csmHelper.update();
         }
@@ -184,6 +179,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.camera.position.x = 10;
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
         this.orbitControls.target.y = 3;
+        this.orbitControls.saveState();
 
         // Add light to scene.
         // this.sunLightGroup = new Group();
@@ -214,19 +210,31 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         // Add cascaded shadow mapping to scene.
         this.csm = new CSM({
-            maxFar: this.csmParams.far,
-            cascades: 4,
+            maxFar: this.csmParams.maxFar,
+            cascades: this.csmParams.cascades,
             mode: this.csmParams.mode,
+            shadowMapSize: this.csmParams.shadowMapSize,
+            shadowBias: this.csmParams.shadowBias,
+            lightDirection: new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize(),
+            lightMargin: this.csmParams.lightMargin,
+            lightIntensity: this.csmParams.lightIntensity,
+            lightFar: this.csmParams.lightFar,
+            lightNear: this.csmParams.lightNear,
             parent: this.scene,
-            shadowMapSize: 1024,
-            lightDirection: new Vector3( this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ ).normalize(),
             camera: this.camera
         });
 
-        this.csmHelper = new CSMHelper(this.csm);
-        const csmHelperGroup = this.csmHelper as unknown as Group;
-        csmHelperGroup.visible = true;
-        this.scene.add(csmHelperGroup);
+        // CSM constructor always sets this to false no matter what is passed.
+        // So we have to set it afterwords.
+        this.csm.fade = this.csmParams.fade;
+
+        (window as any).csm = this.csm;
+
+        // this.csmHelper = new CSMHelper(this.csm);
+        // const csmHelperGroup = this.csmHelper as unknown as Group;
+        // csmHelperGroup.name = 'CSM Helper';
+        // csmHelperGroup.visible = true;
+        // this.scene.add(csmHelperGroup);
 
         (window as any).renderer = this.renderer;
         // (window as any).sunLight = this.sunLight;
@@ -251,13 +259,76 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         await this.load_origModel();
         await this.load_cubes();
 
-        // Setup dat gui.
-        this.gui = new dat.GUI();
-
-        this.gui.updateDisplay();
+        this.initGui();
 
         // this.renderer.shadowMap.needsUpdate = true;
         this.loaded = true;
+    }
+
+    initGui(): void {
+        this.gui = new dat.GUI();
+
+        const csmFolder = this.gui.addFolder('csm');
+        csmFolder.open();
+
+        csmFolder.add(this.csmParams, 'fade').onChange((value: boolean) => {
+            this.csm.fade = value;
+            this.csm.updateFrustums();
+        });
+        csmFolder.add(this.csmParams, 'maxFar', 1, 50000).onChange((value: number) =>{
+            this.csm.maxFar = value;
+            this.csm.updateFrustums();
+        });
+        csmFolder.add(this.csmParams, 'mode', ['uniform', 'logarithmic', 'practical']).name( 'frustum split mode' ).onChange((value: string) => {
+            this.csm.mode = value;
+            this.csm.updateFrustums();
+        });
+        csmFolder.add(this.csmParams, 'lightX', -1, 1).name('light dir x').onChange((value: number) => {
+            this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
+        });
+        csmFolder.add(this.csmParams, 'lightY', -1, 1).name('light dir y').onChange((value: number) => {
+            this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
+        });
+        csmFolder.add(this.csmParams, 'lightZ', -1, 1).name('light dir z').onChange((value: number) => {
+            this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
+        });
+        csmFolder.add(this.csmParams, 'lightMargin').name('light margin').onChange((value: number) => {
+            this.csm.lightMargin = value;
+        });
+        csmFolder.add(this.csmParams, 'lightNear').step(1).name('light near').onChange((value: number) => {
+            this.csm.lightNear = value;
+
+            for (const light of this.csm.lights) {
+                const l = light as DirectionalLight;
+                l.shadow.camera.near = value;
+                l.shadow.camera.updateProjectionMatrix();
+            }
+        });
+        csmFolder.add(this.csmParams, 'lightFar').step(1).name('light far').onChange((value: number) => {
+            this.csm.lightFar = value;
+
+            for (const light of this.csm.lights) {
+                const l = light as DirectionalLight;
+                l.shadow.camera.far = value;
+                l.shadow.camera.updateProjectionMatrix();
+            }
+        });
+        csmFolder.add(this.csmParams, 'shadowBias', -0.0001, 0.0001).step(0.000001).name('shadow bias').onChange((value: number) => {
+            this.csm.shadowBias = value;
+
+            for (const light of this.csm.lights) {
+                const l = light as DirectionalLight;
+                l.shadow.bias = value;
+                l.shadow.needsUpdate = true;
+                l.shadow.camera.updateProjectionMatrix();
+            }
+        });
+        csmFolder.add(this.csmParams, 'autoUpdate').name('auto update');
+        csmFolder.add(this, 'updateCSM').name('update csm');
+
+        this.gui.add(this, 'resetOrbitCamera').name('reset camera');
+
+        this.gui.updateDisplay();
     }
 
     async load_hdrEnvMap(url: string): Promise<void> {
@@ -392,13 +463,32 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.scene.add(cubeGroup);
     }
 
+    resetOrbitCamera(): void {
+        this.orbitControls.reset();
+    }
+
+    updateCSM(): void {
+        if (this.csm) {
+            this.csm.update();
+        }
+    }
+
     resize(): void {
         const width = window.innerWidth;
         const height = window.innerHeight;
 
         this.renderer.setSize(width, height);
 
-        const pixelRatio = window.devicePixelRatio || 1;
+        // Set pixel ratio of webgl renderer.
+        let pixelRatio = window.devicePixelRatio || 1;
+        const bowserResult = Bowser.parse(window.navigator.userAgent);
+        if (bowserResult.platform.type === 'mobile' || bowserResult.platform.type === 'tablet') {
+            if (pixelRatio > 1) {
+                // Half resolution on mobile devices that have a high density display.
+                pixelRatio /= 2;
+            }
+        }
+        
         this.renderer.setPixelRatio(pixelRatio);
 
         this.camera.aspect = width / height;
@@ -409,7 +499,10 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.stats.begin();
 
         this.orbitControls.update();
-        this.csm.update();
+
+        if (this.csmParams.autoUpdate) {
+            this.updateCSM();
+        }
         // this.sunLightHelper.update();
         // this.sunShadowHelper.update();
 
