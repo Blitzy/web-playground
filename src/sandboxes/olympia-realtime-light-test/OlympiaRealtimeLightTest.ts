@@ -27,6 +27,9 @@ import {
     Group,
     PCFSoftShadowMap,
     Vector3,
+    Color,
+    BoxBufferGeometry,
+    Vector2,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -57,6 +60,13 @@ import orig_stuc_normal_tex from '../common/models/orig-phidias-workshop/Stuc_no
 import orig_wood_diffuse_tex from '../common/models/orig-phidias-workshop/WoodOak_color.png';
 import orig_wood_normal_tex from '../common/models/orig-phidias-workshop/WoodOak_normal.png';
 import dat from "dat.gui";
+import { CSMUtils } from "../common/CSMUtils";
+
+interface CubeConfig {
+    position: { x: number, y: number, z: number };
+    size: { x: number, y: number, z: number };
+    color?: string;
+}
 
 export default class OlympiaRealtimeLightTest extends Sandbox {
 
@@ -65,12 +75,29 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
 
+
     // sunLightGroup: Group;
     // sunLight: DirectionalLight;
     // sunLightHelper: DirectionalLightHelper;
     // sunShadowHelper: CameraHelper;
     csm: CSM
     csmHelper: CSMHelper;
+    csmParams = {
+        orthographic: false,
+        fade: false,
+        far: 1000,
+        mode: 'practical',
+        lightX: - 1,
+        lightY: - 1,
+        lightZ: - 1,
+        margin: 100,
+        lightFar: 5000,
+        lightNear: 1,
+        autoUpdateHelper: true,
+        updateHelper: () => {
+            this.csmHelper.update();
+        }
+    }
     skyLight: HemisphereLight;
 
     loaded: boolean;
@@ -79,6 +106,38 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     terrain: Object3D;
     stats: Stats;
     gui: dat.GUI;
+
+    cubeConfigs: CubeConfig[] = [{
+            position: { x: -20, y: 0, z: -140 },
+            size: { x: 60, y: 7, z: 100, },
+        }, {
+            position: { x: 0, y: 0, z: -25 },
+            size: { x: 30, y: 6, z: 20, },
+        }, {
+            position: { x: -10, y: 0, z: -60 },
+            size: { x: 30, y: 6, z: 30, },
+        }, {
+            position: { x: 175, y: 0, z: 40 },
+            size: { x: 100, y: 20, z: 40, },
+        }, {
+            position: { x: 100, y: 0, z: -60 },
+            size: { x: 20, y: 15, z: 20, },
+        }, {
+            position: { x: 130, y: 0, z: -90 },
+            size: { x: 40, y: 10, z: 15, },
+        }, {
+            position: { x: 90, y: 0, z: -120 },
+            size: { x: 35, y: 7, z: 35, },
+        }, {
+            position: { x: 25, y: 0, z: 100 },
+            size: { x: 100, y: 10, z: 100, },
+        }, {
+            position: { x: 300, y: 0, z: 40 },
+            size: { x: 20, y: 10, z: 150, },
+        }, {
+            position: { x: 400, y: 0, z: 200 },
+            size: { x: 20, y: 10, z: 150, },
+    }];
 
     setupRenderer(): void {
         // Setup renderer.
@@ -92,7 +151,6 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // this.renderer.toneMapping = ACESFilmicToneMapping;
         // this.renderer.toneMappingExposure = 1;
         this.renderer.shadowMap.enabled = true;
-        // this.renderer.shadowMap.type = VSMShadowMap;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
         // this.renderer.shadowMap.autoUpdate = false;
         document.body.appendChild(this.renderer.domElement);
@@ -155,7 +213,20 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // this.sunShadowHelper = new CameraHelper(this.sunLight.shadow.camera);
 
         // Add cascaded shadow mapping to scene.
-        // this.csm = new CSM()
+        this.csm = new CSM({
+            maxFar: this.csmParams.far,
+            cascades: 4,
+            mode: this.csmParams.mode,
+            parent: this.scene,
+            shadowMapSize: 1024,
+            lightDirection: new Vector3( this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ ).normalize(),
+            camera: this.camera
+        });
+
+        this.csmHelper = new CSMHelper(this.csm);
+        const csmHelperGroup = this.csmHelper as unknown as Group;
+        csmHelperGroup.visible = true;
+        this.scene.add(csmHelperGroup);
 
         (window as any).renderer = this.renderer;
         // (window as any).sunLight = this.sunLight;
@@ -178,6 +249,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         await this.load_terrain();
         await this.load_origModel();
+        await this.load_cubes();
 
         // Setup dat gui.
         this.gui = new dat.GUI();
@@ -227,6 +299,8 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     async load_terrain(): Promise<void> {
         this.terrain = await createOlympiaTerrain();
         this.terrain.name = 'Terrain';
+
+        CSMUtils.setupMaterials(this.csm, this.terrain);
 
         // Transform terrain so that the workshop building is roughly where it should be.
         this.terrain.position.set(371.300, -20.500, -170.130);
@@ -287,11 +361,35 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             }
         });
 
+        CSMUtils.setupMaterials(this.csm, gltf.scene);
+
         this.orig_model = gltf.scene;
         this.orig_model.name = 'Original Phidias Workshop';
         this.scene.add(this.orig_model);
 
         precacheObject3DTextures(this.renderer, this.orig_model);
+    }
+
+    async load_cubes(): Promise<void> {
+        const cubeGroup = new Group();
+        cubeGroup.name = 'Cubes Group';
+
+        for (const cubeConfig of this.cubeConfigs) {
+            const geo = new BoxBufferGeometry(cubeConfig.size.x, cubeConfig.size.y, cubeConfig.size.z);
+            const mat = new MeshStandardMaterial({
+                color: cubeConfig.color || new Color(0.5, 0.5, 0.5),
+            });
+            this.csm.setupMaterial(mat);
+
+            const mesh = new Mesh(geo, mat);
+            mesh.position.set(cubeConfig.position.x, cubeConfig.position.y + (cubeConfig.size.y / 2), cubeConfig.position.z)
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            cubeGroup.add(mesh);
+        }
+
+        this.scene.add(cubeGroup);
     }
 
     resize(): void {
@@ -311,6 +409,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.stats.begin();
 
         this.orbitControls.update();
+        this.csm.update();
         // this.sunLightHelper.update();
         // this.sunShadowHelper.update();
 
