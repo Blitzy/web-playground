@@ -1,5 +1,11 @@
 # Web Playground - Changelog
 
+## v0.1.3 - Feb 18, 2021
+
+### Changes
+
+- Added setting presets to olympia-realtime-light-test: `Interior Workshop` and `Exterior Map`.
+
 ## v0.1.2 - Feb 17, 2021
 
 ### Changes

@@ -10,6 +10,17 @@ export function getOptionalValue<T>(obj: T, defaultValue: T): T {
     return obj !== undefined && obj !== null ? obj : defaultValue;
 }
 
+export async function getJson<T>(url: string): Promise<T> {
+    const response = await fetch(url, { method: 'GET'})
+
+    if (response.ok) {
+        const json = await response.json() as T;
+        return json;
+    } else {
+        throw new Error(`Could not get JSON from ${url}.\ncode: ${response.status}, msg: ${response.statusText}`);
+    }
+}
+
 /**
  * Post the given data object as JSON to the provided URL.
  * @returns - Promise that resolves to a Response or null if an exception occured.

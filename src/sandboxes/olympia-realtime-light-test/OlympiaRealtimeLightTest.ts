@@ -14,15 +14,11 @@ import {
     Mesh,
     FrontSide,
     LinearMipmapLinearFilter,
-    VSMShadowMap,
     Group,
     PCFSoftShadowMap,
     Vector3,
     Color,
     BoxBufferGeometry,
-    BasicShadowMap,
-    PCFShadowMap,
-    ShadowMapType,
     PointLight,
     PointLightHelper,
     SpotLight,
@@ -33,11 +29,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 import Sandbox from "../Sandbox";
-import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
+import { getJson, getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 import Stats from "stats.js";
 import { createOlympiaTerrain } from "./olympia-terrain/OlympiaTerrain";
 import { CSM } from 'three/examples/jsm/csm/CSM';
-import { CSMHelper } from 'three/examples/jsm/csm/CSMHelper';
 import Bowser from 'bowser';
 import dat from "dat.gui";
 import { CSMUtils } from "../common/CSMUtils";
@@ -47,6 +42,8 @@ import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
 import venice_sunset_dusk_high_contrast_hdr from '../common/envmap/venice_sunset_dusk_high_contrast_1k.hdr';
 import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
 import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
+
+import presets_json from './presets.json';
 
 // Original Phidias Workshop
 import orig_workshop_gltf from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';
@@ -67,6 +64,14 @@ interface CubeConfig {
     color?: string;
 }
 
+const orbitControlPresetNames = [ 'interior_workshop', 'exterior_map' ] as const;
+type OrbitControlPresetName = typeof orbitControlPresetNames[number];
+
+interface OrbitControlPresetParams {
+    position: Vector3;
+    target: Vector3;
+}
+
 const CSM_Enabled: boolean = true;
 
 export default class OlympiaRealtimeLightTest extends Sandbox {
@@ -75,23 +80,41 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     scene: Scene;
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
+    activeOrbitControlPreset: OrbitControlPresetName = 'interior_workshop';
+
+    orbitControlPresets: Record<OrbitControlPresetName, OrbitControlPresetParams> = {
+        interior_workshop: {
+            position: new Vector3(10, 3, 0),
+            target: new Vector3(9, 3, 0),
+        },
+        exterior_map: {
+            position: new Vector3(40.7, 187.8, 286),
+            target: new Vector3(133.7, -19.7, 4.2),
+        }
+    }
 
     skyLight: HemisphereLight;
-    skyLightColor = [238,213,176];
-    skyLightGroundColor = [45,40,28];
+    skyLightParams = {
+        color: [238,213,176],
+        groundColor: [45,40,28],
+    };
 
     interiorPointLight: PointLight;
-    interiorPointLightColor = [255, 227, 208];
     interiorPointLightHelper: PointLightHelper;
+    interiorPointLightParams = {
+        color: [255, 227, 208],
+    }
 
     interiorSpotLight: SpotLight;
-    interiorSpotLightColor = [255,227,208];
     interiorSpotLightHelper: SpotLightHelper;
     interiorSpotShadowHelper: CameraHelper;
+    interiorSpotLightParams = {
+        color: [255,227,208],
+    }
 
     csm: CSM;
-    csmLightsVisible: boolean = true;
     csmParams = {
+        visible: false,
         fade: true,
         cascades: 4,
         maxFar: 500,
@@ -110,7 +133,9 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
     loaded: boolean;
     envMap: Texture;
-    envMapVisible: boolean = true;
+    envMapParams = {
+        visible: true,
+    }
     orig_model: Object3D;
     terrain: Object3D;
     stats: Stats;
@@ -156,12 +181,13 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             powerPreference: 'high-performance',
         });
 
+        (window as any).renderer = this.renderer;
+
         this.renderer.outputEncoding = sRGBEncoding;
         // this.renderer.toneMapping = ACESFilmicToneMapping;
         // this.renderer.toneMappingExposure = 1;
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
-        // this.renderer.shadowMap.autoUpdate = false;
         document.body.appendChild(this.renderer.domElement);
         
         // Setup stats.
@@ -188,39 +214,9 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.setupRenderer();
 
         // Setup camera controls.
-        this.camera.position.z = 0;
-        this.camera.position.y = 3;
-        this.camera.position.x = 10;
         this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.orbitControls.target.y = 3;
-        this.orbitControls.saveState();
-
-        // Add light to scene.
-        // this.sunLightGroup = new Group();
-        // this.sunLightGroup.name = 'Sun Light Group';
-        
-        // this.sunLight = new DirectionalLight('#e6ba87', 1);
-        // this.sunLight.name = 'Sun Light';
-        // this.sunLight.target.name = 'Sun Light Target';
-        // this.sunLight.castShadow = true;
-        // this.sunLight.position.set(300, 300, 300);
-        // this.sunLight.target.position.set(0, 0, 0);
-
-        // const shadowFrustumSize = 100;
-        // this.sunLight.shadow.camera.left = -shadowFrustumSize;
-        // this.sunLight.shadow.camera.right = shadowFrustumSize;
-        // this.sunLight.shadow.camera.top = shadowFrustumSize;
-        // this.sunLight.shadow.camera.bottom = -shadowFrustumSize;
-        // this.sunLight.shadow.camera.far = 1000;
-        // this.sunLight.shadow.mapSize.set(2048, 2048);
-        // this.sunLight.shadow.bias = -0.0001;
-        // this.sunLight.shadow.radius = 6;
-
-        // this.sunLightGroup.add(this.sunLight);
-        // this.sunLightGroup.add(this.sunLight.target);
-
-        // this.sunLightHelper = new DirectionalLightHelper(this.sunLight, 10, '#ff0');
-        // this.sunShadowHelper = new CameraHelper(this.sunLight.shadow.camera);
+        (window as any).orbitControls = this.orbitControls;
+        this.resetOrbitCamera();
 
         // Add cascaded shadow mapping to scene.
         if (CSM_Enabled) {
@@ -242,22 +238,20 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             // CSM constructor always sets this to false no matter what is passed.
             // So we have to set it afterwords.
             this.csm.fade = this.csmParams.fade;
+
+            for (const light of this.csm.lights) {
+                const l = light as DirectionalLight;
+                l.visible = this.csmParams.visible;
+            }
     
             (window as any).csm = this.csm;
         }
-
-        (window as any).renderer = this.renderer;
-        // (window as any).sunLight = this.sunLight;
-        
-        // this.scene.add(this.sunLightGroup);
-        // this.scene.add(this.sunShadowHelper);
-        // this.scene.add(this.sunLightHelper);
         
         // Add Sky light
         this.skyLight = new HemisphereLight();
         this.skyLight.name = 'Sky Light';
-        this.skyLight.color.fromArray(this.skyLightColor);
-        this.skyLight.groundColor.fromArray(this.skyLightGroundColor);
+        this.skyLight.color.fromArray(this.skyLightParams.color);
+        this.skyLight.groundColor.fromArray(this.skyLightParams.groundColor);
         this.skyLight.intensity = 0.0005;
         this.skyLight.visible = false;
         this.scene.add(this.skyLight);
@@ -265,7 +259,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // Add interior point light
         this.interiorPointLight = new PointLight();
         this.interiorPointLight.name = 'Interior Point Light';
-        this.interiorPointLight.color.fromArray(this.interiorPointLightColor);
+        this.interiorPointLight.color.fromArray(this.interiorPointLightParams.color);
         this.interiorPointLight.intensity = 0.001;
         this.interiorPointLight.distance = 40;
         this.interiorPointLight.decay = 2.8;
@@ -283,7 +277,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // Add interior spot light.
         this.interiorSpotLight = new SpotLight();
         this.interiorSpotLight.name = 'Interior Spot Light';
-        this.interiorSpotLight.color.fromArray(this.interiorSpotLightColor);
+        this.interiorSpotLight.color.fromArray(this.interiorSpotLightParams.color);
         this.interiorSpotLight.intensity = 0.0015;
         this.interiorSpotLight.distance = 40;
         this.interiorSpotLight.decay = 1.1;
@@ -313,7 +307,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // await this.load_hdrEnvMap(sky_hdr);
         // await this.load_ldrEnvMap(sky_ldr);
 
-        if (this.envMapVisible) {
+        if (this.envMapParams.visible) {
             this.scene.environment = this.envMap;
         }
 
@@ -321,50 +315,53 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         await this.load_origModel();
         await this.load_cubes();
 
-        this.initGui();
+        await this.initGui();
 
         // this.renderer.shadowMap.needsUpdate = true;
         this.loaded = true;
     }
 
-    initGui(): void {
-        this.gui = new dat.GUI({ closeOnTop: true });
-
-        if (CSM_Enabled) {// CSM folder.
-            const csmFolder = this.gui.addFolder('csm');
+    async initGui(): Promise<void> {
+        const guiPresets = await getJson(presets_json);
+        this.gui = new dat.GUI({ closeOnTop: true, load: guiPresets });
+        
+        if (CSM_Enabled) {
+            // Sun light (csm) folder.
+            const sunLightFolder = this.gui.addFolder('sun light (csm)');
+            this.gui.remember(this.csmParams);
     
-            csmFolder.add(this, 'csmLightsVisible').name('lights visible').onChange((value: boolean) => {
+            sunLightFolder.add(this.csmParams, 'visible').onChange((value: boolean) => {
                 for (const light of this.csm.lights) {
                     const l = light as DirectionalLight;
                     l.visible = value;
                 }
             });
 
-            csmFolder.add(this.csmParams, 'fade').onChange((value: boolean) => {
+            sunLightFolder.add(this.csmParams, 'fade').onChange((value: boolean) => {
                 this.csm.fade = value;
                 this.csm.updateFrustums();
             });
-            csmFolder.add(this.csmParams, 'maxFar', 1, 50000).onChange((value: number) =>{
+            sunLightFolder.add(this.csmParams, 'maxFar', 1, 50000).onChange((value: number) =>{
                 this.csm.maxFar = value;
                 this.csm.updateFrustums();
             });
-            csmFolder.add(this.csmParams, 'mode', ['uniform', 'logarithmic', 'practical']).name( 'frustum split mode' ).onChange((value: string) => {
+            sunLightFolder.add(this.csmParams, 'mode', ['uniform', 'logarithmic', 'practical']).name( 'frustum split mode' ).onChange((value: string) => {
                 this.csm.mode = value;
                 this.csm.updateFrustums();
             });
-            csmFolder.add(this.csmParams, 'lightX', -1, 1).name('light dir x').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightX', -1, 1).name('light dir x').onChange((value: number) => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
-            csmFolder.add(this.csmParams, 'lightY', -1, 1).name('light dir y').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightY', -1, 1).name('light dir y').onChange((value: number) => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
-            csmFolder.add(this.csmParams, 'lightZ', -1, 1).name('light dir z').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightZ', -1, 1).name('light dir z').onChange((value: number) => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
-            csmFolder.add(this.csmParams, 'lightMargin').name('light margin').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightMargin').name('light margin').onChange((value: number) => {
                 this.csm.lightMargin = value;
             });
-            csmFolder.add(this.csmParams, 'lightNear').step(1).name('light near').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightNear').step(1).name('light near').onChange((value: number) => {
                 this.csm.lightNear = value;
     
                 for (const light of this.csm.lights) {
@@ -373,7 +370,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                     l.shadow.camera.updateProjectionMatrix();
                 }
             });
-            csmFolder.add(this.csmParams, 'lightFar').step(1).name('light far').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightFar').step(1).name('light far').onChange((value: number) => {
                 this.csm.lightFar = value;
     
                 for (const light of this.csm.lights) {
@@ -382,7 +379,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                     l.shadow.camera.updateProjectionMatrix();
                 }
             });
-            csmFolder.add(this.csmParams, 'shadowBias', -0.0001, 0.0001).step(0.000001).name('shadow bias').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'shadowBias', -0.0001, 0.0001).step(0.000001).name('shadow bias').onChange((value: number) => {
                 this.csm.shadowBias = value;
     
                 for (const light of this.csm.lights) {
@@ -392,20 +389,22 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                     l.shadow.camera.updateProjectionMatrix();
                 }
             });
-            csmFolder.add(this.csmParams, 'autoUpdate').name('auto update');
-            csmFolder.add(this, 'updateCSM').name('update csm');
+            sunLightFolder.add(this.csmParams, 'autoUpdate').name('auto update');
+            sunLightFolder.add(this, 'updateCSM').name('update csm');
         }
         
         // Sky light folder
         const skyLightFolder = this.gui.addFolder('sky light');
+        this.gui.remember(this.skyLight);
+        this.gui.remember(this.skyLightParams);
 
         skyLightFolder.add(this.skyLight, 'visible');
 
-        skyLightFolder.addColor(this, 'skyLightColor').name('color').onChange((value: number[]) => {
+        skyLightFolder.addColor(this.skyLightParams, 'color').name('color').onChange((value: number[]) => {
             this.skyLight.color.fromArray(value);
         });
 
-        skyLightFolder.addColor(this, 'skyLightGroundColor').name('ground color').onChange((value: number[]) => {
+        skyLightFolder.addColor(this.skyLightParams, 'groundColor').name('ground color').onChange((value: number[]) => {
             this.skyLight.groundColor.fromArray(value);
         });
 
@@ -413,11 +412,15 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         // Interior point light folder.
         const interiorPointLightFolder = this.gui.addFolder('interior point light');
+        this.gui.remember(this.interiorPointLight);
+        this.gui.remember(this.interiorPointLight.position);
+        this.gui.remember(this.interiorPointLightHelper);
+        this.gui.remember(this.interiorPointLightParams);
 
         interiorPointLightFolder.add(this.interiorPointLight, 'visible');
         interiorPointLightFolder.add(this.interiorPointLightHelper, 'visible').name('helper visible');
 
-        interiorPointLightFolder.addColor(this, 'interiorPointLightColor').name('color').onChange((value: number[]) => {
+        interiorPointLightFolder.addColor(this.interiorPointLightParams, 'color').onChange((value: number[]) => {
             this.interiorPointLight.color.fromArray(value);
         });
 
@@ -432,6 +435,11 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         // Interior spot light folder.
         const interiorSpotLightFolder = this.gui.addFolder('interior spot light');
+        this.gui.remember(this.interiorSpotLight);
+        this.gui.remember(this.interiorSpotLight.position);
+        this.gui.remember(this.interiorSpotLight.target.position);
+        this.gui.remember(this.interiorSpotLightHelper);
+        this.gui.remember(this.interiorSpotLightParams);
 
         interiorSpotLightFolder.add(this.interiorSpotLight, 'visible');
         interiorSpotLightFolder.add(this.interiorSpotLightHelper, 'visible').name('helper visible').onChange((value: boolean) => {
@@ -439,7 +447,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             this.interiorSpotShadowHelper.visible = value;
         });
 
-        interiorSpotLightFolder.addColor(this, 'interiorSpotLightColor').name('color').onChange((value: number[]) => {
+        interiorSpotLightFolder.addColor(this.interiorSpotLightParams, 'color').onChange((value: number[]) => {
             this.interiorSpotLight.color.fromArray(value);
         });
 
@@ -456,10 +464,22 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         interiorSpotLightShadowFolder.add(this.interiorSpotLight.shadow, 'radius', 0, 20);
         interiorSpotLightShadowFolder.add(this.interiorSpotLight.shadow, 'focus', 0, 1);
 
-        // Root folder.
-        this.gui.add(this, 'resetOrbitCamera').name('reset camera');
+        // Camera folder
+        const cameraValuesFolder = this.gui.addFolder('camera values (read-only)');
+        datUtils.addVector3(cameraValuesFolder, 'position', this.orbitControls.object.position, { listen: true });
+        datUtils.addVector3(cameraValuesFolder, 'target', this.orbitControls.target, { listen: true });
 
-        this.gui.add(this, 'envMapVisible').name('environment map').onChange((value: boolean) => {
+        // Root folder.
+        this.gui.remember(this);
+
+        this.gui.add(this, 'activeOrbitControlPreset', orbitControlPresetNames).name('camera preset').onChange((value: OrbitControlPresetName) => {
+            this.resetOrbitCamera();
+        });
+
+        this.gui.add(this, 'resetOrbitCamera').name('camera reset');
+
+        this.gui.remember(this.envMapParams);
+        this.gui.add(this.envMapParams, 'visible').name('environment map').onChange((value: boolean) => {
             this.scene.environment = value ? this.envMap : null;
         });
 
@@ -606,7 +626,10 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     }
 
     resetOrbitCamera(): void {
-        this.orbitControls.reset();
+        const preset = this.orbitControlPresets[this.activeOrbitControlPreset];
+
+        this.orbitControls.object.position.copy(preset.position);
+        this.orbitControls.target.copy(preset.target);
     }
 
     updateCSM(): void {
