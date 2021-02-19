@@ -1,6 +1,6 @@
 # Web Playground - Changelog
 
-## v0.1.4 - TBD
+## v0.1.4 - Feb 19, 2021
 
 ### Changes
 
