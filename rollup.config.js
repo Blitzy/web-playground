@@ -241,6 +241,7 @@ export default async function start(args) {
         '**/*.svg',
         '**/*.png',
         '**/*.jpg',
+        '**/*.jpeg',
         '**/*.gif',
         '**/*.glb',
         '**/*.gltf',

@@ -4,8 +4,9 @@
 
 ### Changes
 
-- Got standard shader derived terrain shader working with splatting. 
+- Got standard shader derived terrain shader working with splatting.
 - Fixed light color/intensity value bugs in olympia realtime light test.
+- Added new sandbox `canvas-image-resize` to test out how canvas can be used to resize images within the browser.
 
 ## v0.1.3 - Feb 18, 2021
 
