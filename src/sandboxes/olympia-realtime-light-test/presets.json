@@ -1,249 +1,261 @@
 {
-    "remembered": {
-      "Interior Workshop": {
-        "0": {
-          "visible": false,
-          "fade": true,
-          "maxFar": 500,
-          "mode": "practical",
-          "lightX": -1,
-          "lightY": -1,
-          "lightZ": -1,
-          "lightMargin": 200,
-          "lightNear": 1,
-          "lightFar": 1000,
-          "shadowBias": 0.000009999999999999999,
-          "autoUpdate": true
-        },
-        "1": {
-          "visible": false,
-          "intensity": 0.0005
-        },
-        "2": {
-          "color": [
-            238,
-            213,
-            176
-          ],
-          "groundColor": [
-            45,
-            40,
-            28
-          ]
-        },
-        "3": {
-          "visible": false,
-          "intensity": 0.001,
-          "distance": 40,
-          "decay": 2.8,
-          "castShadow": true
-        },
-        "4": {
-          "x": -5,
-          "y": 10,
-          "z": 0
-        },
-        "5": {
-          "visible": false
-        },
-        "6": {
-          "color": [
-            255,
-            227,
-            208
-          ]
-        },
-        "7": {
-          "visible": true,
-          "intensity": 0.00457,
-          "distance": 40,
-          "decay": 1.1476822333275891,
-          "penumbra": 1,
-          "angle": 0.8905600405230415,
-          "castShadow": true
-        },
-        "8": {
-          "x": 14.8,
-          "y": 12.3,
-          "z": 0
-        },
-        "9": {
-          "x": -0.4,
-          "y": 0,
-          "z": 0
-        },
-        "10": {
-          "visible": false
-        },
-        "11": {
-          "color": [
-            255,
-            227,
-            208
-          ]
-        },
-        "12": {
-          "activeOrbitControlPreset": "interior_workshop"
-        },
-        "13": {
-          "visible": true
-        }
+  "remembered": {
+    "Interior Workshop": {
+      "0": {
+        "visible": false,
+        "fade": true,
+        "maxFar": 500,
+        "mode": "practical",
+        "lightX": -1,
+        "lightY": -1,
+        "lightZ": -1,
+        "lightColor": [
+          255,
+          212.9539161392405,
+          173.98437500000003
+        ],
+        "lightIntensity": 1.5,
+        "lightMargin": 200,
+        "lightNear": 1,
+        "lightFar": 1000,
+        "shadowBias": 0.000009999999999999999,
+        "autoUpdate": true
       },
-      "Exterior Map": {
-        "0": {
-          "visible": true,
-          "fade": true,
-          "maxFar": 500,
-          "mode": "practical",
-          "lightX": -1,
-          "lightY": -1,
-          "lightZ": -1,
-          "lightMargin": 200,
-          "lightNear": 1,
-          "lightFar": 1000,
-          "shadowBias": 0.000009999999999999999,
-          "autoUpdate": true
+      "1": {
+        "visible": false,
+        "intensity": 0
+      },
+      "2": {
+        "color": [
+          238,
+          213,
+          176
+        ],
+        "groundColor": [
+          45,
+          40,
+          28
+        ]
+      },
+      "3": {
+        "visible": false,
+        "intensity": 0,
+        "distance": 40,
+        "decay": 2.8,
+        "castShadow": true
+      },
+      "4": {
+        "x": -5,
+        "y": 10,
+        "z": 0
+      },
+      "5": {
+        "visible": false
+      },
+      "6": {
+        "color": [
+          255,
+          227,
+          208
+        ]
+      },
+      "7": {
+        "visible": true,
+        "intensity": 1.5,
+        "distance": 38.40732910500353,
+        "decay": 1.1733615221987315,
+        "penumbra": 1,
+        "angle": 0.7510819645738811,
+        "castShadow": true
+      },
+      "8": {
+        "x": 14.8,
+        "y": 12.3,
+        "z": 0
+      },
+      "9": {
+        "x": -0.4,
+        "y": 0,
+        "z": 0
+      },
+      "10": {
+        "visible": false
+      },
+      "11": {
+        "color": [
+          255,
+          227,
+          208
+        ]
+      },
+      "12": {
+        "activeOrbitControlPreset": "interior_workshop"
+      },
+      "13": {
+        "visible": true
+      }
+    },
+    "Exterior Map": {
+      "0": {
+        "visible": true,
+        "fade": true,
+        "maxFar": 1000,
+        "mode": "practical",
+        "lightX": -1,
+        "lightY": -1,
+        "lightZ": -1,
+        "lightColor": [
+          255,
+          212.9539161392405,
+          173.98437500000003
+        ],
+        "lightIntensity": 1.5,
+        "lightMargin": 200,
+        "lightNear": 1,
+        "lightFar": 1500,
+        "shadowBias": 0.000009999999999999999,
+        "autoUpdate": true
+      },
+      "1": {
+        "visible": true,
+        "intensity": 1
+      },
+      "2": {
+        "color": [
+          237.5,
+          208.58447504978554,
+          173.68642769607843
+        ],
+        "groundColor": [
+          52.500000000000014,
+          46.65165441176472,
+          37.87913602941177
+        ]
+      },
+      "3": {
+        "visible": false,
+        "intensity": 0,
+        "distance": 40,
+        "decay": 2.8,
+        "castShadow": true
+      },
+      "4": {
+        "x": -5,
+        "y": 10,
+        "z": 0
+      },
+      "5": {
+        "visible": false
+      },
+      "6": {
+        "color": [
+          255,
+          227,
+          208
+        ]
+      },
+      "7": {
+        "visible": false,
+        "intensity": 0,
+        "distance": 40,
+        "decay": 1.1476822333275891,
+        "penumbra": 1,
+        "angle": 0.8905600405230415,
+        "castShadow": true
+      },
+      "8": {
+        "x": 14.8,
+        "y": 12.3,
+        "z": 0
+      },
+      "9": {
+        "x": -0.4,
+        "y": 0,
+        "z": 0
+      },
+      "10": {
+        "visible": false
+      },
+      "11": {
+        "color": [
+          255,
+          227,
+          208
+        ]
+      },
+      "12": {
+        "activeOrbitControlPreset": "exterior_map"
+      },
+      "13": {
+        "visible": false
+      }
+    }
+  },
+  "preset": "Exterior Map",
+  "closed": false,
+  "folders": {
+    "sun light (csm)": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    },
+    "sky light": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    },
+    "interior point light": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {
+        "position": {
+          "preset": "Default",
+          "closed": true,
+          "folders": {}
         },
-        "1": {
-          "visible": true,
-          "intensity": 0.0005
-        },
-        "2": {
-          "color": [
-            238,
-            213,
-            176
-          ],
-          "groundColor": [
-            45,
-            40,
-            28
-          ]
-        },
-        "3": {
-          "visible": false,
-          "intensity": 0.001,
-          "distance": 40,
-          "decay": 2.8,
-          "castShadow": true
-        },
-        "4": {
-          "x": -5,
-          "y": 10,
-          "z": 0
-        },
-        "5": {
-          "visible": false
-        },
-        "6": {
-          "color": [
-            255,
-            227,
-            208
-          ]
-        },
-        "7": {
-          "visible": false,
-          "intensity": 0.00457,
-          "distance": 40,
-          "decay": 1.1476822333275891,
-          "penumbra": 1,
-          "angle": 0.8905600405230415,
-          "castShadow": true
-        },
-        "8": {
-          "x": 14.8,
-          "y": 12.3,
-          "z": 0
-        },
-        "9": {
-          "x": -0.4,
-          "y": 0,
-          "z": 0
-        },
-        "10": {
-          "visible": false
-        },
-        "11": {
-          "color": [
-            255,
-            227,
-            208
-          ]
-        },
-        "12": {
-          "activeOrbitControlPreset": "exterior_map"
-        },
-        "13": {
-          "visible": false
+        "shadow": {
+          "preset": "Default",
+          "closed": true,
+          "folders": {}
         }
       }
     },
-    "preset": "Interior Workshop",
-    "closed": false,
-    "folders": {
-      "sun light (csm)": {
-        "preset": "Default",
-        "closed": true,
-        "folders": {}
-      },
-      "sky light": {
-        "preset": "Default",
-        "closed": true,
-        "folders": {}
-      },
-      "interior point light": {
-        "preset": "Default",
-        "closed": true,
-        "folders": {
-          "position": {
-            "preset": "Default",
-            "closed": true,
-            "folders": {}
-          },
-          "shadow": {
-            "preset": "Default",
-            "closed": true,
-            "folders": {}
-          }
+    "interior spot light": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {
+        "position": {
+          "preset": "Default",
+          "closed": false,
+          "folders": {}
+        },
+        "target position": {
+          "preset": "Default",
+          "closed": false,
+          "folders": {}
+        },
+        "shadow": {
+          "preset": "Default",
+          "closed": false,
+          "folders": {}
         }
-      },
-      "interior spot light": {
-        "preset": "Default",
-        "closed": true,
-        "folders": {
-          "position": {
-            "preset": "Default",
-            "closed": false,
-            "folders": {}
-          },
-          "target position": {
-            "preset": "Default",
-            "closed": false,
-            "folders": {}
-          },
-          "shadow": {
-            "preset": "Default",
-            "closed": false,
-            "folders": {}
-          }
-        }
-      },
-      "camera values (read-only)": {
-        "preset": "Default",
-        "closed": true,
-        "folders": {
-          "position": {
-            "preset": "Default",
-            "closed": false,
-            "folders": {}
-          },
-          "target": {
-            "preset": "Default",
-            "closed": false,
-            "folders": {}
-          }
+      }
+    },
+    "camera values (read-only)": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {
+        "position": {
+          "preset": "Default",
+          "closed": false,
+          "folders": {}
+        },
+        "target": {
+          "preset": "Default",
+          "closed": false,
+          "folders": {}
         }
       }
     }
   }
+}

@@ -1,5 +1,12 @@
 # Web Playground - Changelog
 
+## v0.1.4 - TBD
+
+### Changes
+
+- Got standard shader derived terrain shader working with splatting. 
+- Fixed light color/intensity value bugs in olympia realtime light test.
+
 ## v0.1.3 - Feb 18, 2021
 
 ### Changes
