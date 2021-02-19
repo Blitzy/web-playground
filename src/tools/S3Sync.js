@@ -8,6 +8,7 @@ const s3sync_config = {
     bucketName: process.env.S3SYNC_BUCKET_NAME,
     region: process.env.S3SYNC_REGION,
     distPath: process.env.S3SYNC_DIST_PATH,
+    cacheControl: process.env.S3SYNC_CACHE_CONTROL,
 };
 
 const chalk = require('chalk');
@@ -79,6 +80,7 @@ async function main() {
                 Key: s3path,
                 Body: fs.readFileSync(file),
                 ContentType: contentType,
+                CacheControl: s3sync_config.cacheControl,
             }));
         }
         
