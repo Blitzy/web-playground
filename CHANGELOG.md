@@ -1,5 +1,12 @@
 # Web Playground - Changelog
 
+## v0.1.5 - Feb 20, 2021
+
+- Using dynamic imports to allow rollup to split sandbox bundles away from main bundle.
+- Revert `rollup-plugin-generate-html-template` back to 1.6.1 to resolve issue causing split bundles to be included in `index.html`.
+- Switch to using yarn package manager.
+- Changed local `http-server` to using cache control value of `max-age=86400` when testing locally.
+
 ## v0.1.4 - Feb 19, 2021
 
 ### Changes

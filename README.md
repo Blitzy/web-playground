@@ -7,13 +7,13 @@ A ready to use environment for building and playing with web technologies.
 Build in development mode:
 
 ```plaintext
-npm run build:dev
+yarn build:dev
 ```
 
 Start local web server:
 
 ```plaintext
-npm run serve
+yarn serve
 ```
 
 Open browser to `localhost:5000`
@@ -23,7 +23,7 @@ Open browser to `localhost:5000`
 Can be deployed to S3 bucket with:
 
 ```plaintext
-npm run s3:build:sync
+yarn s3:build:sync
 ```
 
 Make sure all your environment variables are setup in a `.env` file at the folder root.

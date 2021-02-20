@@ -1,6 +1,6 @@
 import { AppBuildInfo } from './AppBuildInfo';
 import { loadingScreen } from './LoadingScreen';
-import SandboxManifest from './SandboxManifest';
+import { isSandboxDefined, loadSandboxModule, SandboxModules } from './SandboxModules';
 
 var sandboxIframe: HTMLIFrameElement;
 
@@ -9,7 +9,7 @@ async function init() {
     const querySandbox = queryParams.get('sandbox');
     const queryInternalLoadSandbox = queryParams.get('internal-load-sandbox');
 
-    if (querySandbox && SandboxManifest[querySandbox] && queryInternalLoadSandbox === 'true') {
+    if (querySandbox && isSandboxDefined(querySandbox) && queryInternalLoadSandbox === 'true') {
         // Setup and show loading screen.
         loadingScreen.setBackgroundColor('#252629');
         loadingScreen.setProgressVisible(true);
@@ -19,7 +19,8 @@ async function init() {
         loadingScreen.setVisible(true);
 
         // Create and start sandbox.
-        const sandbox = new SandboxManifest[querySandbox]();
+        const sandboxConstructor = await loadSandboxModule(querySandbox);
+        const sandbox = new sandboxConstructor();
         await sandbox.start();
 
         loadingScreen.setVisible(false);
@@ -30,7 +31,7 @@ async function init() {
         setUIVisible(true);
 
         // If sandbox is in the url, pretend we clicked the button for it.
-        if (querySandbox && SandboxManifest[querySandbox]) {
+        if (querySandbox && isSandboxDefined(querySandbox)) {
             onSandboxButtonClick(querySandbox);
         }
     }
@@ -41,12 +42,12 @@ function initUI(): void {
     buttonParent.id = 'sandbox-buttons';
     document.body.append(buttonParent);
 
-    const sandboxKeys = Object.keys(SandboxManifest);
+    const sandboxIds = Object.keys(SandboxModules);
 
-    for (const key of sandboxKeys) {
+    for (const id of sandboxIds) {
         const button: HTMLButtonElement = document.createElement('button');
-        button.id = key;
-        button.textContent = key;
+        button.id = id;
+        button.textContent = id;
 
         button.addEventListener('click', (event) => {
             const clickedButton = event.target as HTMLButtonElement;
@@ -89,7 +90,7 @@ window.addEventListener('load', () => {
 
 window.addEventListener('popstate', (event) => {
     if (event.state) {
-        if (event.state.sandbox && SandboxManifest[event.state.sandbox]) {
+        if (event.state.sandbox && isSandboxDefined(event.state.sandbox)) {
             loadSandbox(event.state.sandbox);
         }
     } else {
