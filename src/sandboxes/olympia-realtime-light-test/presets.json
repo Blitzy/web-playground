@@ -196,12 +196,12 @@
   "folders": {
     "sun light (csm)": {
       "preset": "Default",
-      "closed": false,
+      "closed": true,
       "folders": {}
     },
     "sky light": {
       "preset": "Default",
-      "closed": false,
+      "closed": true,
       "folders": {}
     },
     "interior point light": {
@@ -240,6 +240,11 @@
           "folders": {}
         }
       }
+    },
+    "terrain": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {}
     },
     "camera values (read-only)": {
       "preset": "Default",

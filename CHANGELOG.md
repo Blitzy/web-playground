@@ -1,5 +1,11 @@
 # Web Playground - Changelog
 
+## v0.1.6 - TBD
+
+### Changes
+
+- Terrain deformation in `olympia-realtime-light-test` is now done once via height map at geometry creation time instead of displacement map in the shader.
+
 ## v0.1.5 - Feb 20, 2021
 
 - Using dynamic imports to allow rollup to split sandbox bundles away from main bundle.

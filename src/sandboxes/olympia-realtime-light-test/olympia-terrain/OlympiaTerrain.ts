@@ -1,33 +1,21 @@
-import { 
-    BufferAttribute,
-    Color,
-    DataTexture,
-    DoubleSide,
+import {
     FrontSide,
     Group,
-    LinearEncoding,
-    Material,
     Mesh,
-    MeshBasicMaterial,
-    MeshStandardMaterial,
     PlaneBufferGeometry,
     RepeatWrapping,
-    Shader,
     ShaderChunk,
     ShaderLib,
     ShaderMaterial,
     sRGBEncoding,
+    TangentSpaceNormalMap,
     Texture,
     TextureLoader,
-    Uniform,
-    UniformsLib,
     UniformsUtils,
-    WebGLRenderer 
+    Vector2,
 } from "three"
 
 import white_tex from './textures/white_16x16.png';
-import black_tex from './textures/black_16x16.png';
-import grey_tex from './textures/grey_16x16.png';
 
 // Splatter maps.
 import splatter_map_1 from './textures/TerrainSplattermap1.png';
@@ -49,82 +37,6 @@ import soilA_tex from './textures/Soil_A.jpg';
 import soilA_norm from './textures/Soil_A_norm.jpg';
 import soilB_tex from './textures/Soil_B.jpg';
 import soilB_norm from './textures/Soil_B_norm.jpg';
-import { replace } from "lodash";
-import { stringInsertAt } from "../../../utils/MiscUtils";
-
-
-const vertexShader = `
-uniform sampler2D bumpTexture;
-uniform float bumpScale;
-
-varying vec2 vUv;
-
-void main()
-{
-    vUv = uv;
-
-    vec4 bumpData = texture2D(bumpTexture, uv);
-    float vAmount = bumpData.r;
-
-    // move the position along the normal
-    vec3 newPosition = position + normal * bumpScale * vAmount;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-}
-`
-
-const fragmentShader = `
-uniform sampler2D beachATexture;
-uniform sampler2D grassBTexture;
-uniform sampler2D grassCTexture1;
-uniform sampler2D grassCTexture2;
-uniform sampler2D gravelATexture;
-uniform sampler2D rockATexture;
-uniform sampler2D soilATexture;
-uniform sampler2D soilBTexture;
-
-uniform sampler2D splatterMap1;
-uniform sampler2D splatterMap2;
-
-varying vec2 vUv;
-
-void main()
-{
-    vec4 splat1 = texture2D(splatterMap1, vUv);
-    vec4 splat2 = texture2D(splatterMap2, vUv);
-
-    // the result of guesswork after decomposing the two splatmaps into RGBA
-    // https://docs.gimp.org/en/plug-in-decompose-registered.html
-    float gravelAAmount = splat2.a;
-    float beachAAmount = splat1.b;
-    float grassCAmount1 = splat1.g;
-    float grassCAmount2 = splat1.a;
-    float soilBAmount = splat2.g;
-    float soilAAmount = splat1.r;
-    float grassBAmount = splat2.r;
-    float rockAAmount = splat2.b;
-
-    float beachARepeat = 451.0;
-    float grassBRepeat = 331.0;
-    float grassC1Repeat = 307.0;
-    float grassC2Repeat = 50.0;
-    float gravelARepeat = 97.0;
-    float rockARepeat = 451.0;
-    float soilARepeat = 311.0;
-    float soilBRepeat = 667.0;
-
-    vec4 beachA = beachAAmount * texture2D(beachATexture, vUv * beachARepeat);
-    vec4 grassB = grassBAmount * texture2D(grassBTexture, vUv * grassBRepeat);
-    vec4 grassC1 = grassCAmount1 * texture2D(grassCTexture1, vUv * grassC1Repeat);
-    vec4 grassC2 = grassCAmount2 * texture2D(grassCTexture2, vUv * grassC2Repeat);
-    vec4 gravelA = gravelAAmount * texture2D(gravelATexture, vUv * gravelARepeat);
-    vec4 rockA = rockAAmount * texture2D(rockATexture, vUv * rockARepeat);
-    vec4 soilA = soilAAmount * texture2D(soilATexture, vUv * soilARepeat);
-    vec4 soilB = soilBAmount * texture2D(soilBTexture, vUv * soilBRepeat);
-
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0) + beachA + grassB + grassC1 + grassC2 + gravelA + rockA + soilA + soilB;
-}
-`
 
 const splat_pars_fragment_glsl = `
 uniform sampler2D beachATexture;
@@ -135,6 +47,15 @@ uniform sampler2D gravelATexture;
 uniform sampler2D rockATexture;
 uniform sampler2D soilATexture;
 uniform sampler2D soilBTexture;
+
+uniform float beachARepeat;
+uniform float grassBRepeat;
+uniform float grassC1Repeat;
+uniform float grassC2Repeat;
+uniform float gravelARepeat;
+uniform float rockARepeat;
+uniform float soilARepeat;
+uniform float soilBRepeat;
 
 uniform sampler2D splatterMap1;
 uniform sampler2D splatterMap2;
@@ -156,15 +77,6 @@ const splat_fragment_glsl = `
     float grassBAmount = splat2.r;
     float rockAAmount = splat2.b;
 
-    float beachARepeat = 451.0;
-    float grassBRepeat = 331.0;
-    float grassC1Repeat = 307.0;
-    float grassC2Repeat = 50.0;
-    float gravelARepeat = 97.0;
-    float rockARepeat = 451.0;
-    float soilARepeat = 311.0;
-    float soilBRepeat = 667.0;
-
     vec4 beachA = beachAAmount * texture2D(beachATexture, vUv * beachARepeat);
     vec4 grassB = grassBAmount * texture2D(grassBTexture, vUv * grassBRepeat);
     vec4 grassC1 = grassCAmount1 * texture2D(grassCTexture1, vUv * grassC1Repeat);
@@ -178,12 +90,7 @@ const splat_fragment_glsl = `
     diffuseColor = vec4(0.0, 0.0, 0.0, 1.0) + beachA + grassB + grassC1 + grassC2 + gravelA + rockA + soilA + soilB;
 `;
 
-const test_fragment_glsl = `
-    diffuseColor *= vec4(1.0, 0.0, 0.0, 1.0);
-`;
-
 ShaderChunk['splat_fragment_glsl'] = splat_fragment_glsl;
-// ShaderChunk['splat_fragment_glsl'] = test_fragment_glsl;
 ShaderChunk['splat_pars_fragment_glsl'] = splat_pars_fragment_glsl;
 
 async function loadTexture(url: string, postProcess?: (texture: Texture) => void): Promise<Texture> {
@@ -221,11 +128,39 @@ function assignUniformAndProperty(material: ShaderMaterial, uniformName: string,
     (material as any)[uniformName] = value;
 }
 
+function extractHeightData(heightTexture: Texture, params: { width: number, height: number, heightScale: number }): number[] {
+
+    const heightImage = heightTexture.image as HTMLImageElement;
+
+    // Use canvas to resize image to given resolution.
+    var canvas = document.createElement('canvas');
+    canvas.width = params.width;
+    canvas.height = params.height;
+    const ctx = canvas.getContext('2d')
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(heightImage, 0, 0, params.width, params.height);
+
+    const imageData = ctx.getImageData(0, 0, params.width, params.height).data;
+
+    const data = new Array<number>(params.width * params.height);
+
+    for (let i = 0, k = 0; i < data.length; i++, k += 4) {
+        data[i] = imageData[k] * params.heightScale;
+    }
+
+    return data;
+}
+
 export async function createOlympiaTerrain(): Promise<Group> {
     const terrainGroup = new Group();
     terrainGroup.name = 'Terrain';
 
-    const heightScale = 117.0;
+    const terrainParams = {
+        width: 256,
+        height: 256,
+        heightScale: 0.465,
+    }
 
     const whiteTexture = await loadTexture(white_tex);
 
@@ -254,10 +189,27 @@ export async function createOlympiaTerrain(): Promise<Group> {
     const splatterMap1 = await loadTexture(splatter_map_1);
     const splatterMap2 = await loadTexture(splatter_map_2);
 
-    const planeGeo = new PlaneBufferGeometry(2048, 2048, 256, 256);
+    const planeGeo = new PlaneBufferGeometry(2048, 2048, terrainParams.width - 1, terrainParams.height - 1);
+    (window as any).planeGeo = planeGeo;
 
-    // Assing uv2 attribute with value of uv. Need these for aoMap.
+    // Assign uv2 attribute with value of uv. Need these for aoMap/lightMap.
     planeGeo.attributes.uv2 = planeGeo.attributes.uv;
+
+    // Plane deformation:
+    // Draw the height texture image to 2d canvas context, and then
+    // use the context to read pixel values for geometry deformation.
+    const heightData = extractHeightData(heightTexture, terrainParams);
+
+    // Get plane vertex position attribute and apply height deformation based
+    // on height image pixel values.
+    const planeGeoPosAttr = planeGeo.getAttribute('position');
+    if (planeGeoPosAttr.count !== heightData.length) {
+        console.error(`Height data length (${heightData.length}) does not match number of vertices (${planeGeoPosAttr.count})`);
+    }
+    
+    for (let i = 0; i < planeGeoPosAttr.count; i++) {
+        planeGeoPosAttr.setZ(i, heightData[i]);
+    }
 
     // Create a new shader material that inherits from the mesh standard material.
     let vertexShader = ShaderLib.standard.vertexShader;
@@ -266,7 +218,7 @@ export async function createOlympiaTerrain(): Promise<Group> {
 
     // Assing splatting textures to the material's uniforms.
     uniforms['bumpTexture'] = { value: heightTexture };
-    uniforms['bumpScale'] = { value: heightScale };
+    uniforms['bumpScale'] = { value: terrainParams.heightScale };
     uniforms['beachATexture'] = { value: beachATexture };
     uniforms['grassBTexture'] = { value: grassBTexture };
     uniforms['grassCTexture1'] = { value: grassCTexture1 };
@@ -278,6 +230,16 @@ export async function createOlympiaTerrain(): Promise<Group> {
     uniforms['splatterMap1'] = { value: splatterMap1 };
     uniforms['splatterMap2'] = { value: splatterMap2 };
 
+    // Assign texture repeating values to material's uniforms.
+    uniforms['beachARepeat'] = { value: 451.0 };
+    uniforms['grassBRepeat'] = { value: 331.0 };
+    uniforms['grassC1Repeat'] = { value: 307.0 };
+    uniforms['grassC2Repeat'] = { value: 50.0 };
+    uniforms['gravelARepeat'] = { value: 97.0 };
+    uniforms['rockARepeat'] = { value: 451.0 };
+    uniforms['soilARepeat'] = { value: 311.0 };
+    uniforms['soilBRepeat'] = { value: 667.0 };
+
     // Insert the splat glsl uniform declartions.
     fragmentShader = splat_pars_fragment_glsl + '\n' + fragmentShader;
 
@@ -286,11 +248,6 @@ export async function createOlympiaTerrain(): Promise<Group> {
         '#include <map_fragment>',
         '#include <splat_fragment_glsl>',
     );
-    // const mapFragInclude = '#include <map_fragment>';
-    // const mapFragStart = fragmentShader.indexOf(mapFragInclude);
-    // fragmentShader = stringInsertAt(fragmentShader, '\n#include <splat_fragment_glsl>', mapFragStart + mapFragInclude.length);
-
-    // console.log(`terrain fragment shader before compile:`, fragmentShader);
     
     const planeMat = new ShaderMaterial({
         uniforms,
@@ -300,8 +257,6 @@ export async function createOlympiaTerrain(): Promise<Group> {
         lights: true,
         name: 'TerrainMaterial',
     });
-
-    (window as any).planeMat = planeMat;
     
     (planeMat as any).isMeshStandardMaterial = true;
     
@@ -312,10 +267,6 @@ export async function createOlympiaTerrain(): Promise<Group> {
     // Assign map property so that shader defines for uvs get injected by WebGLProgram.
     // The texture is otherwise unused as it gets overwritten by the splatter.
     assignUniformAndProperty(planeMat, 'map', whiteTexture);
-
-    // Use standard shader's displacement functionality for terrain.
-    assignUniformAndProperty(planeMat, 'displacementMap', heightTexture);
-    assignUniformAndProperty(planeMat, 'displacementScale', heightScale);
     
     assignUniformAndProperty(planeMat, 'envMapIntensity', 1);
     assignUniformAndProperty(planeMat, 'metalness', 0);
@@ -323,44 +274,6 @@ export async function createOlympiaTerrain(): Promise<Group> {
 
     assignUniformAndProperty(planeMat, 'aoMap', heightTexture);
     assignUniformAndProperty(planeMat, 'aoMapIntensity', 1);
-
-
-    // const planeMat = new MeshStandardMaterial({
-    //     displacementMap: heightTexture,
-    //     displacementScale: heightScale,
-    //     aoMapIntensity: 5,
-    //     aoMap: heightTexture,
-    //     envMapIntensity: 1,
-    //     color: '#fff',
-    //     roughness: 1,
-    // });
-
-    // planeMat.onBeforeCompile = (shader: Shader, renderer: WebGLRenderer) => {
-    // };
-
-    // const lightUniforms = UniformsUtils.merge([
-    //     UniformsLib.lights
-    // ]);
-
-    // const planeMat = new ShaderMaterial({
-    //     uniforms: {
-    //         bumpTexture: { value: heightTexture },
-    //         bumpScale: { value: heightScale },
-    //         beachATexture: { value: beachATexture },
-    //         grassBTexture: { value: grassBTexture },
-    //         grassCTexture1: { value: grassCTexture1 },
-    //         grassCTexture2: { value: grassCTexture2 },
-    //         gravelATexture: { value: gravelATexture },
-    //         rockATexture: { value: rockATexture },
-    //         soilATexture: { value: soilATexture },
-    //         soilBTexture: { value: soilBTexture },
-    //         splatterMap1: { value: splatterMap1 },
-    //         splatterMap2: { value: splatterMap2 },
-    //     },
-    //     vertexShader,
-    //     fragmentShader,
-    //     side: DoubleSide,
-    // });
 
     const planeMesh = new Mesh(planeGeo, planeMat);
     planeMesh.rotation.x = -Math.PI / 2;

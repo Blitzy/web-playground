@@ -24,6 +24,7 @@ import {
     SpotLight,
     SpotLightHelper,
     CameraHelper,
+    ShaderMaterial,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -139,6 +140,8 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     }
     orig_model: Object3D;
     terrain: Object3D;
+    terrainMesh: Mesh;
+    terrainMaterial: ShaderMaterial;
     stats: Stats;
     gui: dat.GUI;
 
@@ -516,6 +519,17 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         interiorSpotLightShadowFolder.add(this.interiorSpotLight.shadow, 'radius', 0, 20);
         interiorSpotLightShadowFolder.add(this.interiorSpotLight.shadow, 'focus', 0, 1);
 
+        // Terrain folder.
+        const terrainFolder = this.gui.addFolder('terrain');
+        terrainFolder.add(this.terrainMaterial.uniforms['beachARepeat'], 'value').name('beachARepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['grassBRepeat'], 'value').name('grassBRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['grassC1Repeat'], 'value').name('grassC1Repeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['grassC2Repeat'], 'value').name('grassC2Repeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['gravelARepeat'], 'value').name('gravelARepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['rockARepeat'], 'value').name('rockARepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['soilARepeat'], 'value').name('soilARepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['soilBRepeat'], 'value').name('soilBRepeat');
+
         // Camera folder
         const cameraValuesFolder = this.gui.addFolder('camera values (read-only)');
         datUtils.addVector3(cameraValuesFolder, 'position', this.orbitControls.object.position, { listen: true });
@@ -580,6 +594,9 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.terrain = await createOlympiaTerrain();
         this.terrain.name = 'Terrain';
 
+        this.terrainMesh = this.terrain.children[0] as Mesh;
+        this.terrainMaterial = this.terrainMesh.material as ShaderMaterial;
+
         if (CSM_Enabled) {
             CSMUtils.setupMaterials(this.csm, this.terrain);
         }
@@ -591,11 +608,10 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // Enable shadow casting and receiving.
         this.terrain.traverse((obj3d) => {
             obj3d.receiveShadow = true;
-            obj3d.castShadow = true;
+            obj3d.castShadow = false;
         });
 
         this.scene.add(this.terrain);
-        console.log(`terrain material:`, (this.terrain.children[0] as Mesh).material);
     }
 
     async load_origModel(): Promise<void> {
