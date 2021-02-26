@@ -217,8 +217,6 @@ export async function createOlympiaTerrain(): Promise<Group> {
     let uniforms = UniformsUtils.clone(ShaderLib.standard.uniforms);
 
     // Assing splatting textures to the material's uniforms.
-    uniforms['bumpTexture'] = { value: heightTexture };
-    uniforms['bumpScale'] = { value: terrainParams.heightScale };
     uniforms['beachATexture'] = { value: beachATexture };
     uniforms['grassBTexture'] = { value: grassBTexture };
     uniforms['grassCTexture1'] = { value: grassCTexture1 };

@@ -241,3 +241,20 @@ export function precacheObject3DTextures(renderer: WebGLRenderer, object3d: Obje
         }
     });
 }
+
+export function convertMaterials<T extends Material>(object3d: Object3D, materialType: { new(): T }): void {
+    object3d.traverse((obj3d) => {
+        if (obj3d instanceof Mesh) {
+        if (Array.isArray(obj3d.material)) {
+            console.error(`dont know how to convert materials of meshes that have more than one.`);
+            return;
+        }
+
+        const origMaterial = obj3d.material;
+        const newMaterial = new materialType();
+        newMaterial.copy(origMaterial);
+
+        obj3d.material = newMaterial;
+        }
+    });
+}

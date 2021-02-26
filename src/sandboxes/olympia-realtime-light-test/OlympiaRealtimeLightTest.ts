@@ -25,6 +25,7 @@ import {
     SpotLightHelper,
     CameraHelper,
     ShaderMaterial,
+    Cache,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -34,36 +35,21 @@ import { getJson, getMaterials, precacheObject3DTextures } from "../../utils/Mis
 import Stats from "stats.js";
 import { createOlympiaTerrain } from "./olympia-terrain/OlympiaTerrain";
 import { CSM } from 'three/examples/jsm/csm/CSM';
+import { CSMHelper } from 'three/examples/jsm/csm/CSMHelper';
 import Bowser from 'bowser';
 import dat from "dat.gui";
 import { CSMUtils } from "../common/CSMUtils";
 
-import venice_sunset_hdr from '../common/envmap/venice_sunset_1k.hdr';
 import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
-import venice_sunset_dusk_high_contrast_hdr from '../common/envmap/venice_sunset_dusk_high_contrast_1k.hdr';
-import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
-import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
 
 import presets_json from './presets.json';
 
-// Original Phidias Workshop
-import orig_workshop_gltf from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';
-import orig_workshop_bin from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.bin';
-import orig_limestone_diffuse_tex from '../common/models/orig-phidias-workshop/LimeStoneCoquille_color.jpg';
-import orig_limestone_normal_tex from '../common/models/orig-phidias-workshop/LimeStoneCoquille_normal.jpg';
-import orig_atlas_diffuse_tex from '../common/models/orig-phidias-workshop/PhidiasWorkshop_Atlas_c.jpg';
-import orig_atlas_normal_tex from '../common/models/orig-phidias-workshop/PhidiasWorkshop_Atlas_nml.jpg';
-import orig_pillar_normal_tex from '../common/models/orig-phidias-workshop/PillarGenericA_nml.jpg';
-import orig_stuc_normal_tex from '../common/models/orig-phidias-workshop/Stuc_normal.jpg';
-import orig_wood_diffuse_tex from '../common/models/orig-phidias-workshop/WoodOak_color.png';
-import orig_wood_normal_tex from '../common/models/orig-phidias-workshop/WoodOak_normal.png';
-import datUtils from "../../utils/dat.gui.utils";
 
-interface CubeConfig {
-    position: { x: number, y: number, z: number };
-    size: { x: number, y: number, z: number };
-    color?: string;
-}
+import datUtils from "../../utils/dat.gui.utils";
+import { modelConfigs } from "./config/Models";
+import { cubeConfigs } from "./config/Cubes";
+
+Cache.enabled = true;
 
 const orbitControlPresetNames = [ 'interior_workshop', 'exterior_map' ] as const;
 type OrbitControlPresetName = typeof orbitControlPresetNames[number];
@@ -71,6 +57,10 @@ type OrbitControlPresetName = typeof orbitControlPresetNames[number];
 interface OrbitControlPresetParams {
     position: Vector3;
     target: Vector3;
+}
+
+interface CustomBreaks {
+    [key: number]: number;
 }
 
 const CSM_Enabled: boolean = true;
@@ -114,14 +104,16 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     }
 
     csm: CSM;
+    csmHelper: CSMHelper;
     csmParams = {
         visible: false,
         fade: true,
-        cascades: 4,
+        cascades: 2,
         maxFar: 500,
         shadowMapSize: 2048,
         shadowBias: 0.00001,
         mode: 'practical',
+        customBreaks: {},
         lightX: -1,
         lightY: -1,
         lightZ: -1,
@@ -138,44 +130,11 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     envMapParams = {
         visible: true,
     }
-    orig_model: Object3D;
     terrain: Object3D;
     terrainMesh: Mesh;
     terrainMaterial: ShaderMaterial;
     stats: Stats;
     gui: dat.GUI;
-
-    cubeConfigs: CubeConfig[] = [{
-            position: { x: -20, y: 0, z: -140 },
-            size: { x: 60, y: 7, z: 100, },
-        }, {
-            position: { x: 0, y: 0, z: -25 },
-            size: { x: 30, y: 6, z: 20, },
-        }, {
-            position: { x: -10, y: 0, z: -60 },
-            size: { x: 30, y: 6, z: 30, },
-        }, {
-            position: { x: 175, y: 0, z: 40 },
-            size: { x: 100, y: 20, z: 40, },
-        }, {
-            position: { x: 100, y: 0, z: -60 },
-            size: { x: 20, y: 15, z: 20, },
-        }, {
-            position: { x: 130, y: 0, z: -90 },
-            size: { x: 40, y: 10, z: 15, },
-        }, {
-            position: { x: 90, y: 0, z: -120 },
-            size: { x: 35, y: 7, z: 35, },
-        }, {
-            position: { x: 25, y: 0, z: 100 },
-            size: { x: 100, y: 10, z: 100, },
-        }, {
-            position: { x: 300, y: 0, z: 40 },
-            size: { x: 20, y: 10, z: 150, },
-        }, {
-            position: { x: 400, y: 0, z: 200 },
-            size: { x: 20, y: 10, z: 150, },
-    }];
 
     setupRenderer(): void {
         // Setup renderer.
@@ -204,7 +163,10 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         // Setup camera.
         this.camera = new PerspectiveCamera(60);
+        this.camera.near = 0.5;
+        this.camera.far = 2000;
         this.scene.add(this.camera);
+        (window as any).camera = this.camera;
 
         this.update = this.update.bind(this);
         this.renderer.setAnimationLoop(this.update);
@@ -255,6 +217,27 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                     this.csmParams.lightColor[2] / 255,
                 );
             }
+
+            // Add custom break values to params now that we know what number of cascades we have.
+            for (let i = 0; i < this.csmParams.cascades; i++) {
+                // Uniform split by default.
+                const customBreaks = this.csmParams.customBreaks as CustomBreaks;
+                customBreaks[i] = 1 * ((i + 1) / this.csmParams.cascades);
+            }
+
+            // Setup the custom split function that simply returns the custom break values.
+            this.csm.customSplitsCallback = (cascades: number, near: number, far: number, breaks: number[]) => {
+                const customBreaks = this.csmParams.customBreaks as CustomBreaks;
+                for (let i = 0; i < this.csmParams.cascades; i++) {
+                    breaks.push(customBreaks[i]);
+                }
+
+                return breaks;
+            }
+
+            this.csmHelper = new CSMHelper(this.csm);
+            (this.csmHelper as unknown as Group).visible = false;
+            this.scene.add(this.csmHelper as unknown as Group);
         }
         
         // Add Sky light
@@ -338,7 +321,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         }
 
         await this.load_terrain();
-        await this.load_origModel();
+        await this.load_models();
         await this.load_cubes();
 
         await this.initGui();
@@ -371,10 +354,18 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                 this.csm.maxFar = value;
                 this.csm.updateFrustums();
             });
-            sunLightFolder.add(this.csmParams, 'mode', ['uniform', 'logarithmic', 'practical']).name( 'frustum split mode' ).onChange((value: string) => {
+            sunLightFolder.add(this.csmParams, 'mode', ['uniform', 'logarithmic', 'practical', 'custom']).name( 'frustum split mode' ).onChange((value: string) => {
                 this.csm.mode = value;
                 this.csm.updateFrustums();
             });
+
+            const customBreaksFolder = sunLightFolder.addFolder('custom breaks');
+            for (let i = 0; i < this.csmParams.cascades; i++) {
+                customBreaksFolder.add(this.csmParams.customBreaks, i.toString(), 0, 1).step(0.01).onChange((value: number) => {
+                    this.csm.updateFrustums();
+                });
+            }
+            
             sunLightFolder.add(this.csmParams, 'lightX', -1, 1).name('light dir x').onChange((value: number) => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
@@ -428,8 +419,17 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                     l.shadow.camera.updateProjectionMatrix();
                 }
             });
+            
             sunLightFolder.add(this.csmParams, 'autoUpdate').name('auto update');
             sunLightFolder.add(this, 'updateCSM').name('update csm');
+
+            const csmHelperFolder = sunLightFolder.addFolder('csm helper');
+            csmHelperFolder.open();
+            csmHelperFolder.add(this.csmHelper, 'visible');
+            csmHelperFolder.add(this.csmHelper, 'displayFrustum').name('show frustum');
+            csmHelperFolder.add(this.csmHelper, 'displayPlanes').name('show planes');
+            csmHelperFolder.add(this.csmHelper, 'displayShadowBounds').name('show shadow bounds');
+
         }
         
         // Sky light folder
@@ -614,71 +614,73 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         this.scene.add(this.terrain);
     }
 
-    async load_origModel(): Promise<void> {
-        const gltf = await gltfSmartLoad({
-            gltfUrl: orig_workshop_gltf,
-            binUrl: orig_workshop_bin,
-            textureUrls: [
-                { filename: 'LimeStoneCoquille_color.jpg', redirectUrl: orig_limestone_diffuse_tex },
-                { filename: 'LimeStoneCoquille_normal.jpg', redirectUrl: orig_limestone_normal_tex },
-                { filename: 'PhidiasWorkshop_Atlas_c.jpg', redirectUrl: orig_atlas_diffuse_tex },
-                { filename: 'PhidiasWorkshop_Atlas_nml.jpg', redirectUrl: orig_atlas_normal_tex },
-                { filename: 'PillarGenericA_nml.jpg', redirectUrl: orig_pillar_normal_tex },
-                { filename: 'Stuc_normal.jpg', redirectUrl: orig_stuc_normal_tex },
-                { filename: 'WoodOak_color.png', redirectUrl: orig_wood_diffuse_tex },
-                { filename: 'WoodOak_normal.png', redirectUrl: orig_wood_normal_tex },
-            ]
-        });
+    async load_models(): Promise<void> {
+        const modelGroup = new Group();
+        modelGroup.name = 'Model Group';
+        this.scene.add(modelGroup);
 
-        gltf.scene.traverse((obj3d) => {
-            // Enable shadow casting and receiving.
-            obj3d.receiveShadow = true;
-            obj3d.castShadow = true;
-
-            if (obj3d instanceof Mesh) {
-                const materials = getMaterials(obj3d);
-                if (materials) {
-                    for (const material of materials) {
-                        // TEMP FIX: Force all materials to front sided rendered.
-                        material.side = FrontSide;
-                        
-                        // TEMP FIX: Force all maps to use LinearMipmapLinearFilter as minFilter.
-                        if (material instanceof MeshStandardMaterial) {
-                            if (material.map) {
-                                material.map.minFilter = LinearMipmapLinearFilter;
+        for (const cfg of modelConfigs) {
+            // Load gltf and clone an instance of it.
+            const instance = await new Promise<Group>((resolve) => {
+                gltfSmartLoad(cfg.gltf).then((gltf) => resolve(gltf.scene));
+            });
+    
+            instance.traverse((obj3d) => {
+                // Enable shadow casting and receiving.
+                obj3d.receiveShadow = cfg.receiveShadow ?? true;
+                obj3d.castShadow = cfg.castShadow ?? true;
+    
+                if (obj3d instanceof Mesh) {
+                    const materials = getMaterials(obj3d);
+                    if (materials) {
+                        for (const material of materials) {
+                            // TEMP FIX: Force all materials to front sided rendered.
+                            material.side = FrontSide;
+                            
+                            // TEMP FIX: Force all maps to use LinearMipmapLinearFilter as minFilter.
+                            if (material instanceof MeshStandardMaterial) {
+                                if (material.map) {
+                                    material.map.minFilter = LinearMipmapLinearFilter;
+                                }
+                                if (material.normalMap) {
+                                    material.normalMap.minFilter = LinearMipmapLinearFilter;
+                                }
+    
+                                material.normalMap.needsUpdate = true;
                             }
-                            if (material.normalMap) {
-                                material.normalMap.minFilter = LinearMipmapLinearFilter;
-                            }
-
-                            material.normalMap.needsUpdate = true;
+    
+                            material.needsUpdate = true;
                         }
-
-                        material.needsUpdate = true;
                     }
                 }
+            });
+    
+            if (CSM_Enabled) {
+                CSMUtils.setupMaterials(this.csm, instance);
             }
-        });
-
-        if (CSM_Enabled) {
-            CSMUtils.setupMaterials(this.csm, gltf.scene);
+    
+            instance.name = 'Original Phidias Workshop';
+            instance.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+            instance.rotation.set(cfg.rotation.x, cfg.rotation.y, cfg.rotation.z);
+            if (cfg.scale) {
+                instance.scale.set(cfg.scale.x, cfg.scale.y, cfg.scale.z);
+            }
+            
+            modelGroup.add(instance);
+    
+            precacheObject3DTextures(this.renderer, instance);
         }
-
-        this.orig_model = gltf.scene;
-        this.orig_model.name = 'Original Phidias Workshop';
-        this.scene.add(this.orig_model);
-
-        precacheObject3DTextures(this.renderer, this.orig_model);
     }
 
     async load_cubes(): Promise<void> {
         const cubeGroup = new Group();
         cubeGroup.name = 'Cubes Group';
+        this.scene.add(cubeGroup);
 
-        for (const cubeConfig of this.cubeConfigs) {
-            const geo = new BoxBufferGeometry(cubeConfig.size.x, cubeConfig.size.y, cubeConfig.size.z);
+        for (const cfg of cubeConfigs) {
+            const geo = new BoxBufferGeometry(cfg.size.x, cfg.size.y, cfg.size.z);
             const mat = new MeshStandardMaterial({
-                color: cubeConfig.color || new Color(0.5, 0.5, 0.5),
+                color: cfg.color || new Color(0.5, 0.5, 0.5),
             });
 
             if (CSM_Enabled) {
@@ -686,14 +688,12 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             }
 
             const mesh = new Mesh(geo, mat);
-            mesh.position.set(cubeConfig.position.x, cubeConfig.position.y + (cubeConfig.size.y / 2), cubeConfig.position.z)
+            mesh.position.set(cfg.position.x, cfg.position.y + (cfg.size.y / 2), cfg.position.z)
             mesh.castShadow = true;
             mesh.receiveShadow = true;
 
             cubeGroup.add(mesh);
         }
-
-        this.scene.add(cubeGroup);
     }
 
     resetOrbitCamera(): void {
@@ -707,6 +707,10 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         if (CSM_Enabled) {
             if (this.csm) {
                 this.csm.update();
+            }
+            if (this.csmHelper) {
+                this.csmHelper.updateVisibility();
+                this.csmHelper.update();
             }
         }
     }

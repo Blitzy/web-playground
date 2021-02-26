@@ -1,10 +1,13 @@
 # Web Playground - Changelog
 
-## v0.1.6 - TBD
+## v0.1.6 - Feb 26, 2021
 
 ### Changes
 
 - Terrain deformation in `olympia-realtime-light-test` is now done once via height map at geometry creation time instead of displacement map in the shader.
+- Added `CSMHelper` to `olympia-realtime-light-test` to visualize cascaded shadow mapping breaks.
+- Added ability to modify breaks using `custom` split setting in `olympia-realtime-light-test`.
+- Added `mesh-performance` sandbox for testing raw geometry rendering performance for ~4 million triangles using different materials.
 
 ## v0.1.5 - Feb 20, 2021
 

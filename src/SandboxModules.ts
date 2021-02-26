@@ -8,6 +8,7 @@ export const SandboxModules: Record<string, { (): Promise<SandboxModuleType> }> 
     'orbit-box':                            () => { return import('./sandboxes/orbit-box/OrbitBox') },
     'olympia-lightmap-test':                () => { return import('./sandboxes/olympia-lightmap-test/OlympiaLightmapTest') },
     'olympia-realtime-light-test':          () => { return import('./sandboxes/olympia-realtime-light-test/OlympiaRealtimeLightTest') },
+    'mesh-performance':                     () => { return import('./sandboxes/mesh-performance/MeshPerformance') },
 }
 
 export type SandboxId = keyof (typeof SandboxModules); 

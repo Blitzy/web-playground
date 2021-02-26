@@ -7,9 +7,9 @@ var sandboxIframe: HTMLIFrameElement;
 async function init() {
     const queryParams = new URLSearchParams(window.location.search);
     const querySandbox = queryParams.get('sandbox');
-    const queryInternalLoadSandbox = queryParams.get('internal-load-sandbox');
+    const queryLoad = queryParams.get('load');
 
-    if (querySandbox && isSandboxDefined(querySandbox) && queryInternalLoadSandbox === 'true') {
+    if (querySandbox && isSandboxDefined(querySandbox) && (queryLoad === 'true' || queryLoad === '1')) {
         // Setup and show loading screen.
         loadingScreen.setBackgroundColor('#252629');
         loadingScreen.setProgressVisible(true);
@@ -74,7 +74,7 @@ function loadSandbox(key: string): void {
     sandboxIframe = document.createElement('iframe');
     sandboxIframe.name = 'sandbox-iframe';
     sandboxIframe.id = 'sandbox-iframe';
-    sandboxIframe.src = `${window.location.origin}${window.location.pathname}?sandbox=${key}&internal-load-sandbox=true`;
+    sandboxIframe.src = `${window.location.origin}${window.location.pathname}?sandbox=${key}&load=1`;
 
     document.body.append(sandboxIframe);
 }
