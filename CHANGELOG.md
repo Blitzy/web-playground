@@ -1,5 +1,13 @@
 # Web Playground - Changelog
 
+## v0.1.7 - TBD
+
+### Changes
+
+- Added `level-of-detail` sandbox to test out the three `LOD` object.
+- Created `DebugTextPanel` to handle displaying updating text to the screen.
+- Removed `GLStats` and converted it's usage to `DebugTextPanel`.
+
 ## v0.1.6 - Feb 26, 2021
 
 ### Changes

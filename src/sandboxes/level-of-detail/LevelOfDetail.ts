@@ -4,23 +4,35 @@ import {
     sRGBEncoding,
     Scene,
     PerspectiveCamera,
-    BoxBufferGeometry,
-    MeshStandardMaterial,
+    IcosahedronBufferGeometry,
+    BufferGeometry,
+    LOD,
     Mesh,
+    MeshLambertMaterial,
     DirectionalLight,
-    HemisphereLight 
+    HemisphereLight,
+    Vector3,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from "stats.js";
+import { DebugTextPanel } from "../../utils/DebugTextPanel";
 
-export default class OrbitBox extends Sandbox {
+interface LODLevel {
+    geometry: BufferGeometry,
+    distance: number,
+}
+
+export default class LevelOfDetail extends Sandbox {
 
     renderer: WebGLRenderer;
+    debugText: DebugTextPanel;
     stats: Stats;
     scene: Scene;
     camera: PerspectiveCamera;
     orbitControls: OrbitControls;
     loaded: boolean;
+
+    lod: LOD;
 
     setupRenderer(): void {
         // Setup renderer.
@@ -41,6 +53,12 @@ export default class OrbitBox extends Sandbox {
         this.stats.showPanel(0);
         document.body.append(this.stats.dom);
 
+        // Setup debug text panel.
+        this.debugText = new DebugTextPanel();
+        document.body.append(this.debugText.dom);
+        this.debugText.dom.style.bottom = null;
+        this.debugText.dom.style.top = '48px';
+
         // Setup camera.
         this.camera = new PerspectiveCamera(60);
         this.camera.position.z = 5;
@@ -58,12 +76,6 @@ export default class OrbitBox extends Sandbox {
     }
 
     async setupScene(): Promise<void> {
-        // Add box to scene.
-        const boxGeo = new BoxBufferGeometry(1, 1, 1);
-        const boxMat = new MeshStandardMaterial({ 
-            color: '#600'
-        });
-
         // Add light to scene.
         const sunLight = new DirectionalLight('#fff', 1);
         sunLight.position.set(-100, 200, -100);
@@ -72,8 +84,38 @@ export default class OrbitBox extends Sandbox {
         const skyLight = new HemisphereLight('#bde4ff', '#737063', 1);
         this.scene.add(skyLight);
 
-        const box = new Mesh(boxGeo, boxMat);
-        this.scene.add(box);
+        // Add lod object to scene.
+        const levels: LODLevel[] = [
+            { geometry: new IcosahedronBufferGeometry(1, 2), distance: 0 },
+            { geometry: new IcosahedronBufferGeometry(1, 1), distance: 50 },
+            { geometry: new IcosahedronBufferGeometry(1, 0), distance: 100 },
+        ];
+
+        this.lod = new LOD();
+        this.scene.add(this.lod);
+
+        for (let i = 0; i < levels.length; i++) {
+            const level = levels[i];
+            const material = new MeshLambertMaterial({ color: '#600', flatShading: true });
+            const mesh = new Mesh(level.geometry, material);
+            mesh.name = `LOD${i}`;
+
+            this.lod.addLevel(mesh, level.distance);
+        }
+
+        // Add some debug text.
+        this.debugText.addLine('lod-level', () => {
+            return `Current LOD Level: ${this.lod.getCurrentLevel()}`;
+        });
+
+        this.debugText.addLine('distance', () => {
+            // Calculate distance to the lod the same way that the LOD object does.
+            const cameraWorldPos = new Vector3().setFromMatrixPosition(this.camera.matrixWorld);
+            const lodWorldPos = new Vector3().setFromMatrixPosition(this.lod.matrixWorld);
+            const distance = cameraWorldPos.distanceTo(lodWorldPos) / this.camera.zoom;
+
+            return `Current Distance: ${distance.toLocaleString('en-US')}`;
+        });
     }
 
     async start(): Promise<void> {
@@ -108,5 +150,6 @@ export default class OrbitBox extends Sandbox {
         this.renderer.render(this.scene, this.camera);
 
         this.stats.end();
+        this.debugText.update();
     }
 }

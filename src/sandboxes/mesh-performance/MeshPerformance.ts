@@ -29,7 +29,7 @@ import {
     MeshPhongMaterial,
 } from "three";
 import { Time } from '../../utils/Time';
-import { GLStats } from '../../utils/GLStats';
+import { DebugTextPanel } from '../../utils/DebugTextPanel';
 
 const instanceCount = 1000;
 const instanceAreaSize = 40;
@@ -54,7 +54,8 @@ export default class MeshPerformance extends Sandbox {
     srcSuzanneMaterial: MeshStandardMaterial;
     gui: dat.GUI;
     stats: Stats;
-    glStats: GLStats;
+    // glStats: GLStats;
+    debugText: DebugTextPanel;
     loaded: boolean;
 
     instances: Object3D[];
@@ -92,10 +93,23 @@ export default class MeshPerformance extends Sandbox {
         document.body.append(this.stats.dom);
 
         // Setup gl stats.
-        this.glStats = new GLStats(this.renderer);
-        this.glStats.dom.style.bottom = null;
-        this.glStats.dom.style.top = '48px';
-        document.body.append(this.glStats.dom);
+        this.debugText = new DebugTextPanel();
+        document.body.append(this.debugText.dom);
+        this.debugText.dom.style.bottom = null;
+        this.debugText.dom.style.top = '48px';
+
+        this.debugText.addLine('draw-calls', () => {
+            return `Draw calls: ${this.renderer.info.render.calls.toLocaleString('en-US')}`;
+        });
+        this.debugText.addLine('triangles', () => {
+            return `Triangles: ${this.renderer.info.render.triangles.toLocaleString('en-US')}`;
+        });
+        this.debugText.addLine('points', () => {
+            return `Points: ${this.renderer.info.render.points.toLocaleString('en-US')}`;
+        });
+        this.debugText.addLine('lines', () => {
+            return `Lines: ${this.renderer.info.render.lines.toLocaleString('en-US')}`;
+        });
 
         // Setup clock.
         this.time = new Time();
@@ -254,6 +268,6 @@ export default class MeshPerformance extends Sandbox {
         this.time.update();
 
         this.stats.end();
-        this.glStats.update();
+        this.debugText.update();
     }
 }
