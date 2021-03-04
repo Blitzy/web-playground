@@ -1,4 +1,6 @@
 import {
+    CanvasTexture,
+    Color,
     FrontSide,
     Group,
     Mesh,
@@ -8,14 +10,10 @@ import {
     ShaderLib,
     ShaderMaterial,
     sRGBEncoding,
-    TangentSpaceNormalMap,
     Texture,
     TextureLoader,
     UniformsUtils,
-    Vector2,
 } from "three"
-
-import white_tex from './textures/white_16x16.png';
 
 // Splatter maps.
 import splatter_map_1 from './textures/TerrainSplattermap1.png';
@@ -26,17 +24,12 @@ import height_map from './textures/olympia_terrain_heightmap.jpg';
 
 // Terrain textures.
 import beachA_tex from './textures/Beach_A.jpg';
-import beachA_norm from './textures/Beach_A_norm.jpg';
 import grassB_tex from './textures/Grass_B.jpg';
 import grassC_tex from './textures/Grass_C.jpg';
-import grassD_tex from './textures/Grass_D.jpg';
 import gravelA_tex from './textures/Gravel_A.jpg';
 import rockA_tex from './textures/Rock_A.jpg';
-import rockA_norm from './textures/Rock_A_norm.jpg';
 import soilA_tex from './textures/Soil_A.jpg';
-import soilA_norm from './textures/Soil_A_norm.jpg';
 import soilB_tex from './textures/Soil_B.jpg';
-import soilB_norm from './textures/Soil_B_norm.jpg';
 
 const splat_pars_fragment_glsl = `
 uniform sampler2D beachATexture;
@@ -133,7 +126,7 @@ function extractHeightData(heightTexture: Texture, params: { width: number, heig
     const heightImage = heightTexture.image as HTMLImageElement;
 
     // Use canvas to resize image to given resolution.
-    var canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
     canvas.width = params.width;
     canvas.height = params.height;
     const ctx = canvas.getContext('2d')
@@ -152,6 +145,18 @@ function extractHeightData(heightTexture: Texture, params: { width: number, heig
     return data;
 }
 
+function generateSolidColorTexture(width: number, height: number, color: Color): Texture {
+    let canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color.getHexString();
+    ctx.fillRect(0, 0, width, height);
+
+    const texture = new CanvasTexture(canvas);
+    return texture;
+}
+
 export async function createOlympiaTerrain(): Promise<Group> {
     const terrainGroup = new Group();
     terrainGroup.name = 'Terrain';
@@ -162,7 +167,7 @@ export async function createOlympiaTerrain(): Promise<Group> {
         heightScale: 0.465,
     }
 
-    const whiteTexture = await loadTexture(white_tex);
+    const whiteTexture = generateSolidColorTexture(16, 16, new Color('#fff'));
 
     const heightTexture = await loadTexture(height_map, (texture) => {
         texture.encoding = sRGBEncoding;
