@@ -139,7 +139,7 @@ function extractHeightData(heightTexture: Texture, params: { width: number, heig
     const data = new Array<number>(params.width * params.height);
 
     for (let i = 0, k = 0; i < data.length; i++, k += 4) {
-        data[i] = imageData[k] * params.heightScale;
+        data[i] = (imageData[k] / 255) * params.heightScale;
     }
 
     return data;
@@ -164,7 +164,7 @@ export async function createOlympiaTerrain(): Promise<Group> {
     const terrainParams = {
         width: 256,
         height: 256,
-        heightScale: 0.465,
+        heightScale: 117,
     }
 
     const whiteTexture = generateSolidColorTexture(16, 16, new Color('#fff'));
