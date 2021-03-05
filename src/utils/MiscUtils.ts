@@ -190,6 +190,7 @@ export function sortZA<T, K extends keyof T>(array: T[], propertyKey: K): void {
         return a[propertyKey] < b[propertyKey] ? 1 : -1
     });
 }
+
 export function stringInsertAt(str: string, sub: string, pos: number): string {
     return `${str.slice(0, pos)}${sub}${str.slice(pos)}`;
 }

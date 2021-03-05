@@ -39,15 +39,12 @@ import { CSMHelper } from 'three/examples/jsm/csm/CSMHelper';
 import Bowser from 'bowser';
 import dat from "dat.gui";
 import { CSMUtils } from "../common/CSMUtils";
-
-import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
-
-import presets_json from './presets.json';
-
-
 import datUtils from "../../utils/dat.gui.utils";
 import { modelConfigs } from "./config/Models";
 import { cubeConfigs } from "./config/Cubes";
+
+import presets_json from './presets.json';
+import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
 
 Cache.enabled = true;
 
@@ -131,6 +128,11 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         visible: true,
     }
     terrain: Object3D;
+    terrainParams = {
+        fogHeight: -7.5,
+        fogColor: [43, 92, 147],
+        fogSmooth: 2.5,
+    }
     terrainMesh: Mesh;
     terrainMaterial: ShaderMaterial;
     stats: Stats;
@@ -529,6 +531,19 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         terrainFolder.add(this.terrainMaterial.uniforms['rockARepeat'], 'value').name('rockARepeat');
         terrainFolder.add(this.terrainMaterial.uniforms['soilARepeat'], 'value').name('soilARepeat');
         terrainFolder.add(this.terrainMaterial.uniforms['soilBRepeat'], 'value').name('soilBRepeat');
+        terrainFolder.addColor(this.terrainParams, 'fogColor').name('fog color').onChange((value: number[]) => {
+            this.terrainMaterial.uniforms['heightFogColor'].value = new Color().setRGB(
+                value[0] / 255,
+                value[1] / 255,
+                value[2] / 255,
+            );
+        });
+        terrainFolder.add(this.terrainParams, 'fogHeight').name('fog height').onChange((value: number) => {
+            this.terrainMaterial.uniforms['heightFogPos'].value = value;
+        });
+        terrainFolder.add(this.terrainParams, 'fogSmooth').name('fog smooth').onChange((value: number) => {
+            this.terrainMaterial.uniforms['heightFogSmooth'].value = value;
+        });
 
         // Camera folder
         const cameraValuesFolder = this.gui.addFolder('camera values (read-only)');
@@ -596,6 +611,14 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         this.terrainMesh = this.terrain.children[0] as Mesh;
         this.terrainMaterial = this.terrainMesh.material as ShaderMaterial;
+
+        this.terrainMaterial.uniforms['heightFogColor'].value = new Color().setRGB(
+            this.terrainParams.fogColor[0] / 255,
+            this.terrainParams.fogColor[1] / 255,
+            this.terrainParams.fogColor[2] / 255,
+        );
+        this.terrainMaterial.uniforms['heightFogPos'].value = this.terrainParams.fogHeight;
+        this.terrainMaterial.uniforms['heightFogSmooth'].value = this.terrainParams.fogSmooth;
 
         if (CSM_Enabled) {
             CSMUtils.setupMaterials(this.csm, this.terrain);

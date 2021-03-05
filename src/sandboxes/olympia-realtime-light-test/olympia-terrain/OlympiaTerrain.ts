@@ -1,9 +1,12 @@
 import {
+    AdditiveBlending,
     CanvasTexture,
+    Clock,
     Color,
     FrontSide,
     Group,
     Mesh,
+    MeshStandardMaterial,
     PlaneBufferGeometry,
     RepeatWrapping,
     ShaderChunk,
@@ -13,6 +16,7 @@ import {
     Texture,
     TextureLoader,
     UniformsUtils,
+    Vector2,
 } from "three"
 
 // Splatter maps.
@@ -30,6 +34,12 @@ import gravelA_tex from './textures/Gravel_A.jpg';
 import rockA_tex from './textures/Rock_A.jpg';
 import soilA_tex from './textures/Soil_A.jpg';
 import soilB_tex from './textures/Soil_B.jpg';
+import { stringInsertAt } from "../../../utils/MiscUtils";
+
+// Water model.
+import water_gltf from '../models/water/water.gltf';
+import water_emissive from './textures/water_emissive.jpg';
+import { gltfSmartLoad } from "../../../utils/GLTFSmartLoad";
 
 const splat_pars_fragment_glsl = `
 uniform sampler2D beachATexture;
@@ -83,8 +93,38 @@ const splat_fragment_glsl = `
     diffuseColor = vec4(0.0, 0.0, 0.0, 1.0) + beachA + grassB + grassC1 + grassC2 + gravelA + rockA + soilA + soilB;
 `;
 
-ShaderChunk['splat_fragment_glsl'] = splat_fragment_glsl;
 ShaderChunk['splat_pars_fragment_glsl'] = splat_pars_fragment_glsl;
+ShaderChunk['splat_fragment_glsl'] = splat_fragment_glsl;
+
+const heightfog_pars_vertex_glsl = `
+varying vec3 fragWorldPos;
+`;
+
+const heightfog_vertex_glsl = `
+fragWorldPos = vec3(modelMatrix * vec4(position, 1.0));
+`;
+
+const heightfog_pars_fragment_glsl = `
+uniform vec3 heightFogColor;
+uniform float heightFogSmooth;
+uniform float heightFogPos;
+
+varying vec3 fragWorldPos;
+`;
+
+const heightfog_fragment_glsl = `
+if (fragWorldPos.y <= heightFogPos) {
+    float fogFullDensityPos = fragWorldPos.y - heightFogSmooth;
+    float fragFogStep = smoothstep(heightFogPos, fogFullDensityPos, fragWorldPos.y);
+
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, heightFogColor, fragFogStep);
+}
+`;
+
+ShaderChunk['heightfog_pars_vertex'] = heightfog_pars_vertex_glsl;
+ShaderChunk['heightfog_vertex'] = heightfog_vertex_glsl;
+ShaderChunk['heightfog_pars_fragment'] = heightfog_pars_fragment_glsl;
+ShaderChunk['heightfog_fragment'] = heightfog_fragment_glsl;
 
 async function loadTexture(url: string, postProcess?: (texture: Texture) => void): Promise<Texture> {
     return new Promise<Texture>((resolve, reject) => {
@@ -221,7 +261,16 @@ export async function createOlympiaTerrain(): Promise<Group> {
     let fragmentShader = ShaderLib.standard.fragmentShader;
     let uniforms = UniformsUtils.clone(ShaderLib.standard.uniforms);
 
-    // Assing splatting textures to the material's uniforms.
+    // Insert the splat glsl uniform declarations.
+    fragmentShader = '#include <splat_pars_fragment_glsl>' + '\n' + fragmentShader;
+
+    // Replace the map fragment with the splat fragment.
+    fragmentShader = fragmentShader.replace(
+        '#include <map_fragment>',
+        '#include <splat_fragment_glsl>',
+    );
+
+    // Assign splatting textures to the material's uniforms.
     uniforms['beachATexture'] = { value: beachATexture };
     uniforms['grassBTexture'] = { value: grassBTexture };
     uniforms['grassCTexture1'] = { value: grassCTexture1 };
@@ -243,14 +292,24 @@ export async function createOlympiaTerrain(): Promise<Group> {
     uniforms['soilARepeat'] = { value: 311.0 };
     uniforms['soilBRepeat'] = { value: 667.0 };
 
-    // Insert the splat glsl uniform declartions.
-    fragmentShader = splat_pars_fragment_glsl + '\n' + fragmentShader;
+    // Insert the height fog uniform declarations.
+    vertexShader = '#include <heightfog_pars_vertex>' + '\n' + vertexShader;
+    fragmentShader = '#include <heightfog_pars_fragment>' + '\n' + fragmentShader;
 
-    // Insert the splat fragment right after the map fragment.
-    fragmentShader = fragmentShader.replace(
-        '#include <map_fragment>',
-        '#include <splat_fragment_glsl>',
-    );
+    // Insert the height fog vertex after the fog vertex.
+    const fogVertInclude = '#include <fog_vertex>';
+    const fogVertStartIndex = vertexShader.indexOf(fogVertInclude);
+    vertexShader = stringInsertAt(vertexShader, '\n    #include <heightfog_vertex>', fogVertStartIndex + fogVertInclude.length);
+
+    // Insert the height fog fragment after the fog fragment.
+    const fogFragInclude = '#include <fog_fragment>';
+    const fogFragStartIndex = fragmentShader.indexOf(fogFragInclude);
+    fragmentShader = stringInsertAt(fragmentShader, '\n    #include <heightfog_fragment>', fogFragStartIndex + fogFragInclude.length);
+
+    // Assign height fog values to the material's uniforms.
+    uniforms['heightFogColor'] = { value: new Color(0.5, 0.5, 0.5) };
+    uniforms['heightFogSmooth'] = { value: 2 };
+    uniforms['heightFogPos'] = { value: 30 };
     
     const planeMat = new ShaderMaterial({
         uniforms,
@@ -260,8 +319,6 @@ export async function createOlympiaTerrain(): Promise<Group> {
         lights: true,
         name: 'TerrainMaterial',
     });
-    
-    (planeMat as any).isMeshStandardMaterial = true;
     
     // Assign these uniforms and properties after the material is created.
     // This gets around three's handling of ShaderMaterial differently from 
@@ -279,8 +336,47 @@ export async function createOlympiaTerrain(): Promise<Group> {
     assignUniformAndProperty(planeMat, 'aoMapIntensity', 1);
 
     const planeMesh = new Mesh(planeGeo, planeMat);
+    planeMesh.name = 'land';
     planeMesh.rotation.x = -Math.PI / 2;
     terrainGroup.add(planeMesh);
+
+    // Load water mesh.
+    const waterGltf = await gltfSmartLoad({ gltfUrl: water_gltf });
+    const waterMesh = waterGltf.scene.getObjectByName('default') as Mesh;
+    waterMesh.name = 'water';
+    waterMesh.position.set(0, -41.5, 0);
+
+    // Modify the water material to give it more water-like appearence that plays well with the terrain shader's height fog.
+    const waterMaterial = waterMesh.material as MeshStandardMaterial;
+
+    (window as any).waterMaterial = waterMaterial;
+
+    waterMaterial.opacity = 1;
+    waterMaterial.color.setScalar(0);
+    waterMaterial.blending = AdditiveBlending;
+    
+    waterMaterial.emissiveMap = await loadTexture(water_emissive, (t) => {});
+    waterMaterial.emissiveMap.wrapS = RepeatWrapping;
+    waterMaterial.emissiveMap.wrapT = RepeatWrapping;
+    waterMaterial.emissive.setRGB(0.3, 0.7, 1);
+    waterMaterial.emissiveIntensity = 0.05;
+
+    const clock = new Clock(true);
+    const flowSpeed = new Vector2(0.07, 0.03);
+    
+    waterMaterial.normalMap.wrapS = RepeatWrapping;
+    waterMaterial.normalMap.wrapT = RepeatWrapping;
+    waterMaterial.normalMap.repeat = new Vector2().setScalar(32);
+    waterMaterial.normalMap.needsUpdate = true;
+    
+    waterMesh.onBeforeRender = () => {
+        const timeDelta = clock.getDelta();
+
+        waterMaterial.normalMap.offset.x += flowSpeed.x * timeDelta;
+        waterMaterial.normalMap.offset.y += flowSpeed.y * timeDelta;
+    }
+    
+    terrainGroup.add(waterMesh);
 
     return terrainGroup;
 }
