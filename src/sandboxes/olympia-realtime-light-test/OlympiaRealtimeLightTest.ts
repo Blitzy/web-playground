@@ -26,6 +26,7 @@ import {
     CameraHelper,
     ShaderMaterial,
     Cache,
+    ACESFilmicToneMapping,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
@@ -149,7 +150,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         (window as any).renderer = this.renderer;
 
         this.renderer.outputEncoding = sRGBEncoding;
-        // this.renderer.toneMapping = ACESFilmicToneMapping;
+        // this.renderer.toneMapping = 4;
         // this.renderer.toneMappingExposure = 1;
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -523,14 +524,14 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
         // Terrain folder.
         const terrainFolder = this.gui.addFolder('terrain');
-        terrainFolder.add(this.terrainMaterial.uniforms['beachARepeat'], 'value').name('beachARepeat');
-        terrainFolder.add(this.terrainMaterial.uniforms['grassBRepeat'], 'value').name('grassBRepeat');
-        terrainFolder.add(this.terrainMaterial.uniforms['grassC1Repeat'], 'value').name('grassC1Repeat');
-        terrainFolder.add(this.terrainMaterial.uniforms['grassC2Repeat'], 'value').name('grassC2Repeat');
-        terrainFolder.add(this.terrainMaterial.uniforms['gravelARepeat'], 'value').name('gravelARepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['soilRepeat'], 'value').name('soilRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['soilLightRepeat'], 'value').name('soilLightRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['wetSandRepeat'], 'value').name('wetSandRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['grassRepeat'], 'value').name('grassRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['hipodromRepeat'], 'value').name('hipodromRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['groundRepeat'], 'value').name('groundRepeat');
         terrainFolder.add(this.terrainMaterial.uniforms['rockARepeat'], 'value').name('rockARepeat');
-        terrainFolder.add(this.terrainMaterial.uniforms['soilARepeat'], 'value').name('soilARepeat');
-        terrainFolder.add(this.terrainMaterial.uniforms['soilBRepeat'], 'value').name('soilBRepeat');
+        terrainFolder.add(this.terrainMaterial.uniforms['gravelARepeat'], 'value').name('gravelARepeat');
         terrainFolder.addColor(this.terrainParams, 'fogColor').name('fog color').onChange((value: number[]) => {
             this.terrainMaterial.uniforms['heightFogColor'].value = new Color().setRGB(
                 value[0] / 255,

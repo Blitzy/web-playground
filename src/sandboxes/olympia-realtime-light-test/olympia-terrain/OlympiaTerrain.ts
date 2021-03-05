@@ -1,5 +1,6 @@
 import {
     AdditiveBlending,
+    BufferGeometry,
     CanvasTexture,
     Clock,
     Color,
@@ -13,22 +14,26 @@ import {
     ShaderLib,
     ShaderMaterial,
     sRGBEncoding,
+    TangentSpaceNormalMap,
     Texture,
     TextureLoader,
     UniformsUtils,
     Vector2,
+    Vector3,
 } from "three"
 
 // Splatter maps.
-import splatter_map_1 from './textures/TerrainSplattermap1.png';
-import splatter_map_2 from './textures/TerrainSplattermap2.png';
+import splat_map_0 from './textures/Terrain_splatmap0_3-5-2021.png';
+import splat_map_1 from './textures/Terrain_splatmap1_3-5-2021.png';
 
 // Height map.
-import height_map from './textures/olympia_terrain_heightmap.jpg';
+import height_map from './textures/Terrain_heightmap_3-5-2021.png';
+
+// Terrain normal map.
+import terrain_normal from './textures/Terrain_normal.jpg';
 
 // Terrain textures.
 import beachA_tex from './textures/Beach_A.jpg';
-import grassB_tex from './textures/Grass_B.jpg';
 import grassC_tex from './textures/Grass_C.jpg';
 import gravelA_tex from './textures/Gravel_A.jpg';
 import rockA_tex from './textures/Rock_A.jpg';
@@ -41,56 +46,75 @@ import water_gltf from '../models/water/water.gltf';
 import water_emissive from './textures/water_emissive.jpg';
 import { gltfSmartLoad } from "../../../utils/GLTFSmartLoad";
 
+
 const splat_pars_fragment_glsl = `
+// The Unity project that the terrain data is coming from is composed of two splat maps.
+// Between those two splat maps there are a few textures that are reused, so instead of loading duplicates of a texture into memory, 
+// we load them by texture type and then will map the type to a layer name when whe actually do the splatting.
+
+// Unity Splat Map Table
+// ---------------------------------------------
+// Layer Name   |  Map Channel  | Texture
+// ---------------------------------------------
+// Soil         | splatMap0.r   | soilATexture
+// Soil_Light   | splatMap0.g   | soilBTexture
+// Wet_Sand     | splatMap0.b   | beachATexture
+// Grass        | splatMap0.a   | grassCTexture
+// Hipodrom     | splatMap1.r   | soilBTexture
+// Ground       | splatMap1.g   | grassCTexture
+// Rock_A       | splatMap1.b   | rockATexture
+// Gravel_A     | splatMap1.a   | gravelATexture
+
+uniform sampler2D splatMap0;
+uniform sampler2D splatMap1;
+
 uniform sampler2D beachATexture;
-uniform sampler2D grassBTexture;
-uniform sampler2D grassCTexture1;
-uniform sampler2D grassCTexture2;
-uniform sampler2D gravelATexture;
-uniform sampler2D rockATexture;
 uniform sampler2D soilATexture;
 uniform sampler2D soilBTexture;
+uniform sampler2D grassCTexture;
+uniform sampler2D gravelATexture;
+uniform sampler2D rockATexture;
 
-uniform float beachARepeat;
-uniform float grassBRepeat;
-uniform float grassC1Repeat;
-uniform float grassC2Repeat;
-uniform float gravelARepeat;
+uniform float soilRepeat;
+uniform float soilLightRepeat; 
+uniform float wetSandRepeat;
+uniform float grassRepeat;
+uniform float hipodromRepeat;
+uniform float groundRepeat;
 uniform float rockARepeat;
-uniform float soilARepeat;
-uniform float soilBRepeat;
+uniform float gravelARepeat;
 
-uniform sampler2D splatterMap1;
-uniform sampler2D splatterMap2;
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
 `;
 
 const splat_fragment_glsl = `
+    vec4 splat0 = texture2D(splatMap0, vUv);
+    vec4 splat1 = texture2D(splatMap1, vUv);
 
-    vec4 splat1 = texture2D(splatterMap1, vUv);
-    vec4 splat2 = texture2D(splatterMap2, vUv);
+    vec4 soil = splat0.r * texture2D(soilATexture, vUv * soilRepeat);
+    vec4 soilLight = splat0.g * texture2D(soilBTexture, vUv * soilLightRepeat);
+    vec4 wetSand = splat0.b * texture2D(beachATexture, vUv * wetSandRepeat);
+    vec4 grass = splat0.a * texture2D(grassCTexture, vUv * grassRepeat);
+    vec4 hipodrom = splat1.r * texture2D(soilBTexture, vUv * hipodromRepeat);
+    vec4 ground = splat1.g * texture2D(grassCTexture, vUv * groundRepeat);
+    vec4 rockA = splat1.b * texture2D(rockATexture, vUv * rockARepeat);
+    vec4 gravelA = splat1.a * texture2D(gravelATexture, vUv * gravelARepeat);
 
-    // the result of guesswork after decomposing the two splatmaps into RGBA
-    // https://docs.gimp.org/en/plug-in-decompose-registered.html
-    float gravelAAmount = splat2.a;
-    float beachAAmount = splat1.b;
-    float grassCAmount1 = splat1.g;
-    float grassCAmount2 = splat1.a;
-    float soilBAmount = splat2.g;
-    float soilAAmount = splat1.r;
-    float grassBAmount = splat2.r;
-    float rockAAmount = splat2.b;
-
-    vec4 beachA = beachAAmount * texture2D(beachATexture, vUv * beachARepeat);
-    vec4 grassB = grassBAmount * texture2D(grassBTexture, vUv * grassBRepeat);
-    vec4 grassC1 = grassCAmount1 * texture2D(grassCTexture1, vUv * grassC1Repeat);
-    vec4 grassC2 = grassCAmount2 * texture2D(grassCTexture2, vUv * grassC2Repeat);
-    vec4 gravelA = gravelAAmount * texture2D(gravelATexture, vUv * gravelARepeat);
-    vec4 rockA = rockAAmount * texture2D(rockATexture, vUv * rockARepeat);
-    vec4 soilA = soilAAmount * texture2D(soilATexture, vUv * soilARepeat);
-    vec4 soilB = soilBAmount * texture2D(soilBTexture, vUv * soilBRepeat);
-
-    // gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0) + beachA + grassB + grassC1 + grassC2 + gravelA + rockA + soilA + soilB;
-    diffuseColor = vec4(0.0, 0.0, 0.0, 1.0) + beachA + grassB + grassC1 + grassC2 + gravelA + rockA + soilA + soilB;
+    diffuseColor = vec4(0.0, 0.0, 0.0, 1.0) + soil + soilLight + wetSand + grass + hipodrom + ground + rockA + gravelA;
 `;
 
 ShaderChunk['splat_pars_fragment_glsl'] = splat_pars_fragment_glsl;
@@ -157,7 +181,7 @@ async function loadTexture(url: string, postProcess?: (texture: Texture) => void
  * seems to be the only way to fix issses with the WebGLProgram injections.
  */
 function assignUniformAndProperty(material: ShaderMaterial, uniformName: string, value: any): void {
-    material.uniforms[uniformName].value = value;
+    material.uniforms[uniformName] = { value };
     (material as any)[uniformName] = value;
 }
 
@@ -223,18 +247,18 @@ export async function createOlympiaTerrain(): Promise<Group> {
     }
 
     const beachATexture = await loadTexture(beachA_tex, postProcessTexture);
-    const grassBTexture = await loadTexture(grassB_tex, postProcessTexture);
-    const grassCTexture1 = await loadTexture(grassC_tex, postProcessTexture);
-    const grassCTexture2 = await loadTexture(grassC_tex, postProcessTexture);
+    const grassCTexture = await loadTexture(grassC_tex, postProcessTexture);
     const gravelATexture = await loadTexture(gravelA_tex, postProcessTexture);
     const rockATexture = await loadTexture(rockA_tex, postProcessTexture);
     const soilATexture = await loadTexture(soilA_tex, postProcessTexture);
     const soilBTexture = await loadTexture(soilB_tex, postProcessTexture);
 
-    const splatterMap1 = await loadTexture(splatter_map_1);
-    const splatterMap2 = await loadTexture(splatter_map_2);
+    const splatMap0Texture = await loadTexture(splat_map_0);
+    const splatMap1Texture = await loadTexture(splat_map_1);
 
-    const planeGeo = new PlaneBufferGeometry(2048, 2048, terrainParams.width - 1, terrainParams.height - 1);
+    const terrainNormalTexture = await loadTexture(terrain_normal);
+
+    let planeGeo: BufferGeometry = new PlaneBufferGeometry(2048, 2048, terrainParams.width - 1, terrainParams.height - 1);
     (window as any).planeGeo = planeGeo;
 
     // Assign uv2 attribute with value of uv. Need these for aoMap/lightMap.
@@ -256,6 +280,11 @@ export async function createOlympiaTerrain(): Promise<Group> {
         planeGeoPosAttr.setZ(i, heightData[i]);
     }
 
+    planeGeo.computeVertexNormals();
+    planeGeo.computeTangents();
+    planeGeo.computeBoundingBox();
+    planeGeo.computeBoundingSphere();
+
     // Create a new shader material that inherits from the mesh standard material.
     let vertexShader = ShaderLib.standard.vertexShader;
     let fragmentShader = ShaderLib.standard.fragmentShader;
@@ -272,25 +301,23 @@ export async function createOlympiaTerrain(): Promise<Group> {
 
     // Assign splatting textures to the material's uniforms.
     uniforms['beachATexture'] = { value: beachATexture };
-    uniforms['grassBTexture'] = { value: grassBTexture };
-    uniforms['grassCTexture1'] = { value: grassCTexture1 };
-    uniforms['grassCTexture2'] = { value: grassCTexture2 };
-    uniforms['gravelATexture'] = { value: gravelATexture };
-    uniforms['rockATexture'] = { value: rockATexture };
     uniforms['soilATexture'] = { value: soilATexture };
     uniforms['soilBTexture'] = { value: soilBTexture };
-    uniforms['splatterMap1'] = { value: splatterMap1 };
-    uniforms['splatterMap2'] = { value: splatterMap2 };
+    uniforms['grassCTexture'] = { value: grassCTexture };
+    uniforms['gravelATexture'] = { value: gravelATexture };
+    uniforms['rockATexture'] = { value: rockATexture };
+    uniforms['splatMap0'] = { value: splatMap0Texture };
+    uniforms['splatMap1'] = { value: splatMap1Texture };
 
     // Assign texture repeating values to material's uniforms.
-    uniforms['beachARepeat'] = { value: 220.0 };
-    uniforms['grassBRepeat'] = { value: 220.0 };
-    uniforms['grassC1Repeat'] = { value: 220.0 };
-    uniforms['grassC2Repeat'] = { value: 75.0 };
-    uniforms['gravelARepeat'] = { value: 220.0 };
-    uniforms['rockARepeat'] = { value: 220.0 };
-    uniforms['soilARepeat'] = { value: 220.0 };
-    uniforms['soilBRepeat'] = { value: 220.0 };
+    uniforms['soilRepeat'] = { value: 150.0 };
+    uniforms['soilLightRepeat'] = { value: 150.0 };
+    uniforms['wetSandRepeat'] = { value: 220.0 };
+    uniforms['grassRepeat'] = { value: 150.0 };
+    uniforms['hipodromRepeat'] = { value: 220.0 };
+    uniforms['groundRepeat'] = { value: 220.0 };
+    uniforms['rockARepeat'] = { value: 55.0 };
+    uniforms['gravelARepeat'] = { value: 180.0 };
 
     // Insert the height fog uniform declarations.
     vertexShader = '#include <heightfog_pars_vertex>' + '\n' + vertexShader;
@@ -311,7 +338,7 @@ export async function createOlympiaTerrain(): Promise<Group> {
     uniforms['heightFogSmooth'] = { value: 2 };
     uniforms['heightFogPos'] = { value: 30 };
     
-    const planeMat = new ShaderMaterial({
+    const terrainMaterial = new ShaderMaterial({
         uniforms,
         vertexShader,
         fragmentShader,
@@ -322,6 +349,8 @@ export async function createOlympiaTerrain(): Promise<Group> {
         lights: true,
         name: 'TerrainMaterial',
     });
+
+    (window as any).terrainMaterial = terrainMaterial;
     
     // Assign these uniforms and properties after the material is created.
     // This gets around three's handling of ShaderMaterial differently from 
@@ -329,16 +358,17 @@ export async function createOlympiaTerrain(): Promise<Group> {
 
     // Assign map property so that shader defines for uvs get injected by WebGLProgram.
     // The texture is otherwise unused as it gets overwritten by the splatter.
-    assignUniformAndProperty(planeMat, 'map', whiteTexture);
+    assignUniformAndProperty(terrainMaterial, 'map', whiteTexture);
     
-    assignUniformAndProperty(planeMat, 'envMapIntensity', 1);
-    assignUniformAndProperty(planeMat, 'metalness', 0);
-    assignUniformAndProperty(planeMat, 'roughness', 1);
+    assignUniformAndProperty(terrainMaterial, 'envMapIntensity', 1);
+    assignUniformAndProperty(terrainMaterial, 'metalness', 0);
+    assignUniformAndProperty(terrainMaterial, 'roughness', 1);
 
-    assignUniformAndProperty(planeMat, 'aoMap', heightTexture);
-    assignUniformAndProperty(planeMat, 'aoMapIntensity', 1);
+    assignUniformAndProperty(terrainMaterial, 'normalMap', terrainNormalTexture);
+    assignUniformAndProperty(terrainMaterial, 'normalScale', new Vector2(2, 2));
+    assignUniformAndProperty(terrainMaterial, 'normalMapType', TangentSpaceNormalMap);
 
-    const planeMesh = new Mesh(planeGeo, planeMat);
+    const planeMesh = new Mesh(planeGeo, terrainMaterial);
     planeMesh.name = 'land';
     planeMesh.rotation.x = -Math.PI / 2;
     terrainGroup.add(planeMesh);

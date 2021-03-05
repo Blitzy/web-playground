@@ -106,8 +106,8 @@
         "lightZ": -1,
         "lightColor": [
           255,
-          212.9539161392405,
-          173.98437500000003
+          218.2133556547619,
+          171.484375
         ],
         "lightIntensity": 1.5,
         "lightMargin": 200,
@@ -118,13 +118,13 @@
       },
       "1": {
         "visible": true,
-        "intensity": 1
+        "intensity": 0.2
       },
       "2": {
         "color": [
-          237.5,
-          208.58447504978554,
-          173.68642769607843
+          255,
+          217.4561737804878,
+          173.98437500000003
         ],
         "groundColor": [
           52.500000000000014,
@@ -196,12 +196,23 @@
   "folders": {
     "sun light (csm)": {
       "preset": "Default",
-      "closed": true,
-      "folders": {}
+      "closed": false,
+      "folders": {
+        "custom breaks": {
+          "preset": "Default",
+          "closed": true,
+          "folders": {}
+        },
+        "csm helper": {
+          "preset": "Default",
+          "closed": true,
+          "folders": {}
+        }
+      }
     },
     "sky light": {
       "preset": "Default",
-      "closed": true,
+      "closed": false,
       "folders": {}
     },
     "interior point light": {
@@ -243,7 +254,7 @@
     },
     "terrain": {
       "preset": "Default",
-      "closed": true,
+      "closed": false,
       "folders": {}
     },
     "camera values (read-only)": {
