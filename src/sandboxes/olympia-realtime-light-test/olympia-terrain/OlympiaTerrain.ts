@@ -283,14 +283,14 @@ export async function createOlympiaTerrain(): Promise<Group> {
     uniforms['splatterMap2'] = { value: splatterMap2 };
 
     // Assign texture repeating values to material's uniforms.
-    uniforms['beachARepeat'] = { value: 451.0 };
-    uniforms['grassBRepeat'] = { value: 331.0 };
-    uniforms['grassC1Repeat'] = { value: 307.0 };
-    uniforms['grassC2Repeat'] = { value: 50.0 };
-    uniforms['gravelARepeat'] = { value: 97.0 };
-    uniforms['rockARepeat'] = { value: 451.0 };
-    uniforms['soilARepeat'] = { value: 311.0 };
-    uniforms['soilBRepeat'] = { value: 667.0 };
+    uniforms['beachARepeat'] = { value: 220.0 };
+    uniforms['grassBRepeat'] = { value: 220.0 };
+    uniforms['grassC1Repeat'] = { value: 220.0 };
+    uniforms['grassC2Repeat'] = { value: 75.0 };
+    uniforms['gravelARepeat'] = { value: 220.0 };
+    uniforms['rockARepeat'] = { value: 220.0 };
+    uniforms['soilARepeat'] = { value: 220.0 };
+    uniforms['soilBRepeat'] = { value: 220.0 };
 
     // Insert the height fog uniform declarations.
     vertexShader = '#include <heightfog_pars_vertex>' + '\n' + vertexShader;
@@ -315,6 +315,9 @@ export async function createOlympiaTerrain(): Promise<Group> {
         uniforms,
         vertexShader,
         fragmentShader,
+        extensions: {
+            derivatives: true
+        },
         side: FrontSide,
         lights: true,
         name: 'TerrainMaterial',
