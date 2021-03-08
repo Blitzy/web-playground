@@ -42,7 +42,7 @@ export const SandboxManifest: Record<string, SandboxInfo> = {
         id: 'olympia-realtime-light-test',
         title: 'Olympia Realtime Light Test',
         description: 'Three.js scene with terrain and buildings used to test realtime lighting.',
-        sourceRelativeUrl: 'src/sandboxes/olympia-lightmap-test/OlympiaLightmapTest.ts',
+        sourceRelativeUrl: 'src/sandboxes/olympia-realtime-light-test/OlympiaRealtimeLightTest.ts',
         tags: [ ...SandboxTags.three, 'csm', 'cascade', 'shadow', 'terrain' ],
         importFunction: () => { return import('./olympia-realtime-light-test/OlympiaRealtimeLightTest') }
     },
