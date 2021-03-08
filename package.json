@@ -2,8 +2,8 @@
   "name": "web-playground",
   "version": "0.1.7",
   "description": "A ready to use environment for playing with web tech.",
-  "repository": "git@github.com:yeticgi/amway-colorful-farm.git",
-  "author": "",
+  "repository": "git@github.com:Blitzy/web-playground.git",
+  "author": "Ryan Cook",
   "main": "index.js",
   "scripts": {
     "build:dev": "rollup -c --configMode dev",

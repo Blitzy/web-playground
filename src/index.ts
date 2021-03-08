@@ -1,8 +1,10 @@
 import { AppBuildInfo } from './AppBuildInfo';
+import { InfoButton } from './info-button/InfoButton';
 import { loadingScreen } from './LoadingScreen';
-import { isSandboxDefined, loadSandboxModule, SandboxModules } from './SandboxModules';
+import { isSandboxDefined, loadSandboxModule, SandboxManifest } from './sandboxes/SandboxManifest';
 
 var sandboxIframe: HTMLIFrameElement;
+var infoButton: InfoButton;
 
 async function init() {
     const queryParams = new URLSearchParams(window.location.search);
@@ -42,11 +44,12 @@ function initUI(): void {
     buttonParent.id = 'sandbox-buttons';
     document.body.append(buttonParent);
 
-    const sandboxIds = Object.keys(SandboxModules);
+    const sandboxIds = Object.keys(SandboxManifest);
 
     for (const id of sandboxIds) {
         const button: HTMLButtonElement = document.createElement('button');
         button.id = id;
+        button.className = 'sandbox-button';
         button.textContent = id;
 
         button.addEventListener('click', (event) => {
@@ -77,6 +80,10 @@ function loadSandbox(key: string): void {
     sandboxIframe.src = `${window.location.origin}${window.location.pathname}?sandbox=${key}&load=1`;
 
     document.body.append(sandboxIframe);
+
+    // Create info button for the sandbox.
+    infoButton = new InfoButton(key);
+    document.body.append(infoButton.dom);
 }
 
 function setUIVisible(visible: boolean): void {
@@ -98,6 +105,12 @@ window.addEventListener('popstate', (event) => {
 
         if (sandboxIframe) {
             sandboxIframe.remove();
+            sandboxIframe = null;
+        }
+
+        if (infoButton) {
+            infoButton.dispose();
+            infoButton = null;
         }
 
         setUIVisible(true);
