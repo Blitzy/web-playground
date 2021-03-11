@@ -259,3 +259,35 @@ export function convertMaterials<T extends Material>(object3d: Object3D, materia
         }
     });
 }
+
+export function disposeObject3d<T extends Object3D>(obj: T) {
+    if (obj) {
+        obj.traverse((o) => {
+            if (o instanceof Mesh) {
+                if (o.geometry) {
+                    o.geometry.dispose();
+                }
+                
+                if (Array.isArray(o.material)) {
+                    o.material.forEach((m) => disposeMaterial(m));
+                } else {
+                    disposeMaterial(o.material);
+                }
+            }
+        });
+    
+        if (obj.parent) {
+            obj.parent.remove(obj);
+        }
+    }
+}
+
+export function disposeMaterial(material: Material) {
+    for (const value of Object.values(material)) {
+        if (value instanceof Texture) {
+            value.dispose();
+        }
+    }
+
+    material.dispose();
+}
