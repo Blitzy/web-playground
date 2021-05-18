@@ -61,6 +61,14 @@ export const SandboxManifest: Record<string, SandboxInfo> = {
         sourceRelativeUrl: 'src/sandboxes/level-of-detail/LevelOfDetail.ts',
         tags: [ ...SandboxTags.three ],
         importFunction: () => { return import('./level-of-detail/LevelOfDetail') }
+    },
+    'procedural-corner-gizmo': {
+        id: 'procedural-corner-gizmo',
+        title: 'Procedural Corner Gizmo',
+        description: 'Babylon JS scene that create a procedural model to denote room corners. Useful for AR applications.',
+        sourceRelativeUrl: 'src/sandboxes/procedural-corner-gizmo/ProceduralCornerGizmo.ts',
+        tags: [ ...SandboxTags.babylon ],
+        importFunction: () => { return import('./procedural-corner-gizmo/ProceduralCornerGizmo') }
     }
 }
 
