@@ -1,6 +1,12 @@
 # Web Playground - Changelog
 
-## v0.1.7 - TBD
+## v0.1.8 - May 19, 2021
+
+### Changes
+
+- Added `procedural-corner-gizmo` sandbox that uses Babylon JS to render a procedurally generated 3d gizmo.
+
+## v0.1.7 - Mar 8, 2021
 
 ### Changes
 
