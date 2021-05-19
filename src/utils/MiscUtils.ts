@@ -1,5 +1,4 @@
-import { map } from "lodash";
-import { Material, Mesh, MeshBasicMaterial, Object3D, Texture, WebGLRenderer } from "three";
+import { Material, Mesh, Object3D, Texture, WebGLRenderer } from "three";
 
 
 export function hasValue(obj: any): boolean {
