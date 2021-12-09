@@ -1,19 +1,16 @@
 {
   "name": "web-playground",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A ready to use environment for playing with web tech.",
   "repository": "git@github.com:Blitzy/web-playground.git",
   "author": "Ryan Cook",
   "main": "index.js",
   "scripts": {
     "build:dev": "rollup -c --configMode dev",
-    "build:dev:gli": "rollup -c --configMode dev --configGLI on",
-    "build:qa": "rollup -c --configMode qa",
     "build:prod": "rollup -c --configMode prod",
     "watch": "rollup -cw --configMode dev",
-    "s3:build:sync": "yarn build:prod && node ./src/tools/S3Sync.js",
-    "serve": "http-server ./dist -p 5000 -c86400",
-    "serve:nocache": "http-server ./dist -p 5000 -c0"
+    "s3:build:sync": "npm run build:prod && node ./src/tools/S3Sync.js",
+    "serve": "servor ./dist index.html 5000 --secure"
   },
   "license": "ISC",
   "devDependencies": {
@@ -28,7 +25,6 @@
     "@types/stats.js": "^0.17.0",
     "chalk": "^4.1.0",
     "dotenv": "^8.2.0",
-    "http-server": "^0.12.3",
     "mime-types": "^2.1.28",
     "rollup": "^2.10.2",
     "rollup-plugin-copy": "^3.3.0",
@@ -40,6 +36,7 @@
     "rollup-plugin-sourcemaps": "^0.6.2",
     "rollup-plugin-terser": "^5.3.0",
     "rollup-plugin-typescript2": "^0.27.1",
+    "servor": "github:Blitzy/servor",
     "tslib": "^2.0.0",
     "typescript": "^3.9.3"
   },
