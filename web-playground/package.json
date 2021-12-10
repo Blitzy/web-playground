@@ -4,15 +4,12 @@
   "description": "A ready to use environment for playing with web tech.",
   "repository": "git@github.com:Blitzy/web-playground.git",
   "author": "Ryan Cook",
-  "main": "index.js",
   "scripts": {
-    "build:dev": "rollup -c --configMode dev",
-    "build:prod": "rollup -c --configMode prod",
-    "watch": "rollup -cw --configMode dev",
-    "s3:build:sync": "npm run build:prod && node ./src/tools/S3Sync.js",
-    "serve": "servor ./dist index.html 5000 --secure"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "s3:build:sync": "npm run build:prod && node ./src/tools/S3Sync.js"
   },
-  "license": "ISC",
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.5.0",
     "@rollup/plugin-commonjs": "11.1.0",
@@ -33,12 +30,13 @@
     "rollup-plugin-manifest-json": "^1.5.1",
     "rollup-plugin-peer-deps-external": "^2.2.2",
     "rollup-plugin-postcss": "^3.1.1",
-    "rollup-plugin-sourcemaps": "^0.6.2",
+    "rollup-plugin-sourcemaps": "^0.6.2we",
     "rollup-plugin-terser": "^5.3.0",
     "rollup-plugin-typescript2": "^0.27.1",
     "servor": "github:Blitzy/servor",
     "tslib": "^2.0.0",
-    "typescript": "^3.9.3"
+    "typescript": "^4.4.4",
+    "vite": "^2.7.0"
   },
   "dependencies": {
     "@babylonjs/core": "^4.2.0",

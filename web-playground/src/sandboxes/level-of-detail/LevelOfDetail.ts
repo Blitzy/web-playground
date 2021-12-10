@@ -56,6 +56,7 @@ export default class LevelOfDetail extends Sandbox {
         // Setup debug text panel.
         this.debugText = new DebugTextPanel();
         document.body.append(this.debugText.dom);
+        //@ts-expect-error
         this.debugText.dom.style.bottom = null;
         this.debugText.dom.style.top = '48px';
 
