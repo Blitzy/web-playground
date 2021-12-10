@@ -2,28 +2,58 @@
 
 A ready to use environment for building and playing with web technologies.
 
-## Build and Run Locally
+## 💾 Repository Install
 
-Build in development mode:
+Clone this repository using Git:
 
-```plaintext
-yarn build:dev
+```zsh
+git@github.com:Blitzy/web-playground.git
 ```
 
-Start local web server:
+Move to the git repository folder:
 
-```plaintext
-yarn serve
+```zsh
+cd web-playground
 ```
 
-Open browser to `localhost:5000`
+Move to the project folder:
 
-## Public Deployment
+```zsh
+cd web-playground
+```
+
+Run npm install command to install all package depencecies:
+
+```zsh
+npm install
+```
+
+## 🛠️ Start Developing
+
+To run in development mode:
+
+```zsh
+npm run dev
+```
+
+## 📦 Deployment Builds
+
+### Build for Production
+
+To make a build ready for deployment on a production server:
+
+```zsh
+npm run build
+```
+
+A folder will be created at `<root>/web-playground/dist/` that can then be uploaded to the web server.
+
+### Upload to S3
 
 Can be deployed to S3 bucket with:
 
 ```plaintext
-yarn s3:build:sync
+npm run s3:build:sync
 ```
 
 Make sure all your environment variables are setup in a `.env` file at the folder root.
@@ -38,4 +68,4 @@ S3SYNC_BUCKET_NAME="your_bucket_name"
 S3SYNC_DIST_PATH="./dist"
 ```
 
-Current deployment: <http://blitzy3d-web-playground.s3-website.us-east-2.amazonaws.com/>
+Current deployment: <https://d1afogi0np7kx8.cloudfront.net/>
