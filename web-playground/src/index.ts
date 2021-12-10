@@ -40,9 +40,30 @@ async function init() {
 }
 
 function initUI(): void {
+    const app = document.createElement('div');
+    app.id = 'app'
+    app.innerHTML = `
+        <div id="intro-box">
+            <h1 class="font-display">Blitzy's Web Playground</h1>
+            <p class="font-regular">
+                This is a loose collection of sandboxed web tech experiments and demos that I've made available publicy.
+            </p>
+            <p class="font-regular">
+                Each sandbox (as well as this entire site) has its source code public available on GitHub.
+                There is a source code button inside each sandbox that will take you directly to its location on GitHub.
+            </p>
+        </div>
+        <div class="version-info">
+            <p>Version: ${AppBuildInfo.version}</p>
+            <p>Date: ${AppBuildInfo.date().toString()}</p>
+        </div>
+    `
+
+    document.body.append(app);
+
     const buttonParent: HTMLDivElement = document.createElement('div');
     buttonParent.id = 'sandbox-buttons';
-    document.body.append(buttonParent);
+    app.append(buttonParent);
 
     for (const id of SandboxIds) {
         const button: HTMLButtonElement = document.createElement('button');
