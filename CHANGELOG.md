@@ -1,5 +1,10 @@
 # Blitzy's Web Playground - Changelog
 
+## v0.1.9 - Dec 10, 2021
+
+- Moved to Vite JS for build tooling solution.
+- Fixed various type errors with source code caused by upgrade to Typescript 4.4 and Vite.
+
 ## v0.1.8 - May 19, 2021
 
 ### Changes
