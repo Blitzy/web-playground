@@ -9,11 +9,9 @@ import {
     MeshStandardMaterial,
     TextureLoader,
     Texture,
-    DirectionalLightHelper,
     Object3D,
     UnsignedByteType,
     PMREMGenerator,
-    Light,
     FrontSide,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -24,8 +22,8 @@ import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 import dat from "dat.gui";
 
 import venice_sunset_dusk_hdr from '../common/envmap/venice_sunset_dusk_1k.hdr';
-import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
-import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
+// import sky_hdr from '../common/envmap/Sky_Orig_BAKELIGHT.hdr';
+// import sky_ldr from '../common/envmap/Sky_Orig_BAKELIGHT.jpg';
 
 // Original Phidias Workshop
 import orig_workshop_gltf from '../common/models/orig-phidias-workshop/14-PhidiasWorkshop.gltf';

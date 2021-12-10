@@ -26,13 +26,12 @@ import {
     CameraHelper,
     ShaderMaterial,
     Cache,
-    ACESFilmicToneMapping,
 } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { gltfSmartLoad } from "../../utils/GLTFSmartLoad";
 import Sandbox from "../Sandbox";
-import { getJson, getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
+import { getMaterials, precacheObject3DTextures } from "../../utils/MiscUtils";
 import Stats from "stats.js";
 import { createOlympiaTerrain } from "./olympia-terrain/OlympiaTerrain";
 import { CSM } from 'three/examples/jsm/csm/CSM';
@@ -229,7 +228,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             }
 
             // Setup the custom split function that simply returns the custom break values.
-            this.csm.customSplitsCallback = (cascades: number, near: number, far: number, breaks: number[]) => {
+            this.csm.customSplitsCallback = (_cascades: number, _near: number, _far: number, breaks: number[]) => {
                 const customBreaks = this.csmParams.customBreaks as CustomBreaks;
                 for (let i = 0; i < this.csmParams.cascades; i++) {
                     breaks.push(customBreaks[i]);
@@ -334,8 +333,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
     }
 
     async initGui(): Promise<void> {
-        const guiPresets = await getJson(presets_json);
-        this.gui = new dat.GUI({ closeOnTop: true, load: guiPresets });
+        this.gui = new dat.GUI({ closeOnTop: true, load: presets_json });
         
         if (CSM_Enabled) {
             // Sun light (csm) folder.
@@ -364,18 +362,18 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
 
             const customBreaksFolder = sunLightFolder.addFolder('custom breaks');
             for (let i = 0; i < this.csmParams.cascades; i++) {
-                customBreaksFolder.add(this.csmParams.customBreaks, i.toString(), 0, 1).step(0.01).onChange((value: number) => {
+                customBreaksFolder.add(this.csmParams.customBreaks, i.toString(), 0, 1).step(0.01).onChange(() => {
                     this.csm.updateFrustums();
                 });
             }
             
-            sunLightFolder.add(this.csmParams, 'lightX', -1, 1).name('light dir x').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightX', -1, 1).name('light dir x').onChange(() => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
-            sunLightFolder.add(this.csmParams, 'lightY', -1, 1).name('light dir y').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightY', -1, 1).name('light dir y').onChange(() => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
-            sunLightFolder.add(this.csmParams, 'lightZ', -1, 1).name('light dir z').onChange((value: number) => {
+            sunLightFolder.add(this.csmParams, 'lightZ', -1, 1).name('light dir z').onChange(() => {
                 this.csm.lightDirection = new Vector3(this.csmParams.lightX, this.csmParams.lightY, this.csmParams.lightZ).normalize();
             });
             sunLightFolder.addColor(this.csmParams, 'lightColor').name('light color').onChange((value: number[]) => {
@@ -554,7 +552,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         // Root folder.
         this.gui.remember(this);
 
-        this.gui.add(this, 'activeOrbitControlPreset', orbitControlPresetNames).name('camera preset').onChange((value: OrbitControlPresetName) => {
+        this.gui.add(this, 'activeOrbitControlPreset', orbitControlPresetNames).name('camera preset').onChange(() => {
             this.resetOrbitCamera();
         });
 
@@ -668,9 +666,9 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                                 }
                                 if (material.normalMap) {
                                     material.normalMap.minFilter = LinearMipmapLinearFilter;
+                                    material.normalMap.needsUpdate = true;
                                 }
     
-                                material.normalMap.needsUpdate = true;
                             }
     
                             material.needsUpdate = true;

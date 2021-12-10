@@ -24,7 +24,7 @@ export async function getJson<T>(url: string): Promise<T> {
  * Post the given data object as JSON to the provided URL.
  * @returns - Promise that resolves to a Response or null if an exception occured.
  */
-export async function postJsonData(url: string, data: any): Promise<Response> {
+export async function postJsonData(url: string, data: any): Promise<Response | null> {
     console.log(`[postJsonData] start...`);
 
     const headers = new Headers();
@@ -58,7 +58,7 @@ export async function postJsonData(url: string, data: any): Promise<Response> {
  * @param element The element to search the descendents of.
  * @param className The class name(s) to search for. Can be either a single class name or many.
  */
-export function getElementByClassName(element: Element, names: string): HTMLElement {
+export function getElementByClassName(element: Element, names: string): HTMLElement | null {
     if (element instanceof HTMLElement) {
         // Check element for class names.
         const elementClassList: DOMTokenList = element.classList;
@@ -134,7 +134,7 @@ export async function loadImage(url: string, onProgress?: (event: ProgressEvent<
     return new Promise<HTMLImageElement>(((resolve: (value: HTMLImageElement) => void, reject) => {
         const img: HTMLImageElement = new Image();
 
-        img.addEventListener('load', (event) => {
+        img.addEventListener('load', () => {
             resolve(img);
         });
         

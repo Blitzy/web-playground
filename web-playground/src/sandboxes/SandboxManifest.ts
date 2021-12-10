@@ -113,5 +113,7 @@ export async function loadSandboxModule(id: SandboxId): Promise<SandboxConstruct
 
     if (isSandboxConstructor(id, defaultExport, true)) {
         return defaultExport;
+    } else {
+        throw new Error(`Sandbox module ${id} does not have a default export that returns a new Sandbox.`);
     }
 }

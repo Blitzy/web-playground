@@ -3,8 +3,8 @@ import { InfoButton } from './info-button/InfoButton';
 import { loadingScreen } from './LoadingScreen';
 import { isSandboxId, loadSandboxModule, SandboxId, SandboxIds } from './sandboxes/SandboxManifest';
 
-var sandboxIframe: HTMLIFrameElement;
-var infoButton: InfoButton;
+var sandboxIframe: HTMLIFrameElement | null;
+var infoButton: InfoButton | null;
 
 async function init() {
     const queryParams = new URLSearchParams(window.location.search);
@@ -27,7 +27,7 @@ async function init() {
 
         loadingScreen.setVisible(false);
     } else {
-        console.info(`== Blitzy's Web Playground v${AppBuildInfo.version} ==\nDate: ${AppBuildInfo.date().toString()}\nMode: ${AppBuildInfo.mode}`);
+        console.info(`== Blitzy's Web Playground v${AppBuildInfo.version} ==\nDate: ${AppBuildInfo.date().toString()}\nMode: ${AppBuildInfo.mode()}`);
 
         initUI();
         setUIVisible(true);
@@ -64,7 +64,7 @@ function onSandboxButtonClick(id: SandboxId): void {
     const queryParams = new URLSearchParams(window.location.search);
     queryParams.set('sandbox', id);
 
-    history.pushState({ 'sandbox': id }, null, `?${queryParams.toString()}`);
+    history.pushState({ 'sandbox': id }, '', `?${queryParams.toString()}`);
 
     loadSandbox(id);
     setUIVisible(false);
@@ -99,7 +99,7 @@ window.addEventListener('popstate', (event) => {
             loadSandbox(event.state.sandbox);
         }
     } else {
-        history.replaceState(null, null, window.location.origin);
+        history.replaceState(null, '', window.location.origin);
 
         if (sandboxIframe) {
             sandboxIframe.remove();

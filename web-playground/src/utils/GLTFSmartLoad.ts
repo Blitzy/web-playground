@@ -14,7 +14,7 @@ export interface GLTFTextureRedirect {
     redirectUrl: string;
 }
 
-var dracoLoader: DRACOLoader = null;
+var dracoLoader: DRACOLoader;
 
 /**
  * GLTF loader function that can handle DRACO compression and texture url redirects.
@@ -66,7 +66,7 @@ export function gltfSmartLoad(config: GLTFConfig): Promise<GLTF> {
 
         if (!dracoLoader) {
             dracoLoader = new DRACOLoader(loadingManager);
-            dracoLoader.setDecoderPath('public/draco/');
+            dracoLoader.setDecoderPath('draco/');
             dracoLoader.setDecoderConfig({ type: 'js' });
         }
         gltfLoader.setDRACOLoader(dracoLoader);
@@ -76,9 +76,7 @@ export function gltfSmartLoad(config: GLTFConfig): Promise<GLTF> {
             (gltf) => {
                 resolve(gltf);
             },
-            (progressEvent) => {
-
-            },
+            undefined,
             (errorEvent) => {
                 console.error(`[GLTFSmartLoad] Error: ${errorEvent}`);
                 reject(errorEvent);

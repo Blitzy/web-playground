@@ -19,7 +19,6 @@ import {
     TextureLoader,
     UniformsUtils,
     Vector2,
-    Vector3,
 } from "three"
 
 // Splatter maps.
@@ -163,9 +162,7 @@ async function loadTexture(url: string, postProcess?: (texture: Texture) => void
 
                 resolve(texture);
             },
-            (event) => {
-                // On progress.
-            },
+            undefined,
             (event) => {
                 // On error.
                 reject(event);
@@ -193,7 +190,7 @@ function extractHeightData(heightTexture: Texture, params: { width: number, heig
     let canvas = document.createElement('canvas');
     canvas.width = params.width;
     canvas.height = params.height;
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(heightImage, 0, 0, params.width, params.height);
@@ -213,7 +210,7 @@ function generateSolidColorTexture(width: number, height: number, color: Color):
     let canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = color.getHexString();
     ctx.fillRect(0, 0, width, height);
 
@@ -388,7 +385,7 @@ export async function createOlympiaTerrain(): Promise<Group> {
     waterMaterial.color.setScalar(0);
     waterMaterial.blending = AdditiveBlending;
     
-    waterMaterial.emissiveMap = await loadTexture(water_emissive, (t) => {});
+    waterMaterial.emissiveMap = await loadTexture(water_emissive, undefined);
     waterMaterial.emissiveMap.wrapS = RepeatWrapping;
     waterMaterial.emissiveMap.wrapT = RepeatWrapping;
     waterMaterial.emissive.setRGB(0.3, 0.7, 1);
@@ -397,16 +394,16 @@ export async function createOlympiaTerrain(): Promise<Group> {
     const clock = new Clock(true);
     const flowSpeed = new Vector2(0.07, 0.03);
     
-    waterMaterial.normalMap.wrapS = RepeatWrapping;
-    waterMaterial.normalMap.wrapT = RepeatWrapping;
-    waterMaterial.normalMap.repeat = new Vector2().setScalar(32);
-    waterMaterial.normalMap.needsUpdate = true;
+    waterMaterial.normalMap!.wrapS = RepeatWrapping;
+    waterMaterial.normalMap!.wrapT = RepeatWrapping;
+    waterMaterial.normalMap!.repeat = new Vector2().setScalar(32);
+    waterMaterial.normalMap!.needsUpdate = true;
     
     waterMesh.onBeforeRender = () => {
         const timeDelta = clock.getDelta();
 
-        waterMaterial.normalMap.offset.x += flowSpeed.x * timeDelta;
-        waterMaterial.normalMap.offset.y += flowSpeed.y * timeDelta;
+        waterMaterial.normalMap!.offset.x += flowSpeed.x * timeDelta;
+        waterMaterial.normalMap!.offset.y += flowSpeed.y * timeDelta;
     }
     
     terrainGroup.add(waterMesh);

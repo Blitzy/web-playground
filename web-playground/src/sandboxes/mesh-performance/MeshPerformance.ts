@@ -95,7 +95,7 @@ export default class MeshPerformance extends Sandbox {
         // Setup gl stats.
         this.debugText = new DebugTextPanel();
         document.body.append(this.debugText.dom);
-        this.debugText.dom.style.bottom = null;
+        this.debugText.dom.style.removeProperty('bottom');
         this.debugText.dom.style.top = '48px';
 
         this.debugText.addLine('draw-calls', () => {
@@ -244,7 +244,7 @@ export default class MeshPerformance extends Sandbox {
             const mesh = this.instances[i].children[0] as Mesh;
 
             (mesh.material as Material).dispose();
-            mesh.material = this.materialsMap.get(this.materialType).clone();
+            mesh.material = this.materialsMap.get(this.materialType)!.clone();
         }
     }
 

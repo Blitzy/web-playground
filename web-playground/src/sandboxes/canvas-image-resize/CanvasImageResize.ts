@@ -48,7 +48,7 @@ export default class CanvasImageResize extends Sandbox {
         // Setup canvas to display images.
         this.canvas = document.createElement('canvas');
         document.body.append(this.canvas);
-        this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d')!;
 
         this.update();
         this.initGui();
@@ -58,7 +58,7 @@ export default class CanvasImageResize extends Sandbox {
         // Clear contents of canvas.
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const imgEl = this.imageElements.get(this.selectedImage);
+        const imgEl = this.imageElements.get(this.selectedImage)!;
         const width = this.resize ? this.resizeWidth : imgEl.naturalWidth;
         const height = this.resize ? this.resizeHeight : imgEl.naturalHeight;
 
@@ -67,8 +67,8 @@ export default class CanvasImageResize extends Sandbox {
         this.canvas.height = height;
 
         // Set style of canvas to either fill the screen or not.
-        this.canvas.style.width = this.fillScreen ? '100vw' : null;
-        this.canvas.style.height = this.fillScreen ? '100vh' : null;
+        this.canvas.style.width = this.fillScreen ? '100vw' : '';
+        this.canvas.style.height = this.fillScreen ? '100vh' : '';
 
         // Set image smoothing quality setting.
         if (this.quality === 'off') {
@@ -92,16 +92,16 @@ export default class CanvasImageResize extends Sandbox {
 
     initGui(): void {
         this.gui = new GUI();
-        this.gui.add(this, 'selectedImage', imageNames).name('image').onChange((value: ImageName) => {
+        this.gui.add(this, 'selectedImage', imageNames).name('image').onChange((_value: ImageName) => {
             this.update();
         });
-        this.gui.add(this, 'fillScreen').name('fill screen').onChange((value: boolean) => {
+        this.gui.add(this, 'fillScreen').name('fill screen').onChange((_value: boolean) => {
             this.update();
         });
-        this.gui.add(this, 'quality', qualityValues).onChange((value: string) => {
+        this.gui.add(this, 'quality', qualityValues).onChange((_value: string) => {
             this.update();
         });
-        this.gui.add(this, 'resize').name('resize').onChange((value: boolean) => {
+        this.gui.add(this, 'resize').name('resize').onChange((_value: boolean) => {
             this.updateResizeFolderDisplay();
             this.update();
         });
@@ -109,10 +109,10 @@ export default class CanvasImageResize extends Sandbox {
         this.resizeFolder = this.gui.addFolder('resize params');
         this.resizeFolder.open();
 
-        this.resizeFolder.add(this, 'resizeWidth').name('width').onChange((value: number) => {
+        this.resizeFolder.add(this, 'resizeWidth').name('width').onChange((_value: number) => {
             this.update();
         });
-        this.resizeFolder.add(this, 'resizeHeight').name('height').onChange((value: number) => {
+        this.resizeFolder.add(this, 'resizeHeight').name('height').onChange((_value: number) => {
             this.update();
         });
 

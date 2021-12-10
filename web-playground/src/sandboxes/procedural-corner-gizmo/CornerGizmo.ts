@@ -21,7 +21,7 @@ export interface CornerGizmoOptions {
 export class CornerGizmo {
     private _scene: Scene;
     private _root: TransformNode;
-    private _visiblityTimeline: gsap.core.Timeline;
+    private _visiblityTimeline: gsap.core.Timeline | undefined;
 
     private _triangles = new Array<Mesh>(3);
     private _lines = new Array<MarqueeLine>(3);
@@ -193,9 +193,9 @@ export class CornerGizmo {
     }
 
     private _updateTriangleOpacity(): void {
-        this._triangles[0].material.alpha = this._curParams.triangleOpacity;
-        this._triangles[1].material.alpha = this._curParams.triangleOpacity;
-        this._triangles[2].material.alpha = this._curParams.triangleOpacity;
+        this._triangles[0].material!.alpha = this._curParams.triangleOpacity;
+        this._triangles[1].material!.alpha = this._curParams.triangleOpacity;
+        this._triangles[2].material!.alpha = this._curParams.triangleOpacity;
     }
 
     show(immediate?: boolean): void {
@@ -324,7 +324,7 @@ class MarqueeLine {
     private _params: Readonly<MarqueeLineParams>;
     private _curParams: MarqueeLineParams;
     private _dashes: Mesh[] = [];
-    private _dashTimeline: gsap.core.Timeline;
+    private _dashTimeline: gsap.core.Timeline | undefined;
 
     get dashAnimation(): boolean { return this._curParams.dashAnimation }
     set dashAnimation(value: boolean) {
@@ -433,7 +433,7 @@ class MarqueeLine {
                 const targetPosition = new Vector3();
                 this._calcDashPosition(i + 1, targetPosition);
     
-                this._dashTimeline.to(dash.position, {
+                this._dashTimeline!.to(dash.position, {
                     x: targetPosition.x,
                     y: targetPosition.y,
                     z: targetPosition.z,
@@ -454,7 +454,7 @@ class MarqueeLine {
                     const fromZ = animateScale === 'up' ? 0 : this._curParams.dashLength;
                     const toZ = animateScale === 'up' ? this._curParams.dashLength : 0;
     
-                    this._dashTimeline.fromTo(dash.scaling, 
+                    this._dashTimeline!.fromTo(dash.scaling, 
                     {
                         z: fromZ
                     }, 
@@ -481,7 +481,7 @@ class MarqueeLine {
     private _updateLineOpacity(): void {
         for (const dash of this._dashes) {
             if (dash) {
-                dash.material.alpha = this._curParams.lineOpacity;
+                dash.material!.alpha = this._curParams.lineOpacity;
             }
         }
     }

@@ -1,5 +1,3 @@
-import { WebGLRenderer } from "three";
-
 interface DebugTextPanelLine {
     id: string;
     el: HTMLDivElement;
@@ -39,7 +37,7 @@ export class DebugTextPanel {
     }
 
     removeLine(id: string): void {
-        if (this._lines) {
+        if (!this._lines) {
             console.error(`Debug Text Panel lines have not been initialized, cant remove line ${id}`);
             return;
         }

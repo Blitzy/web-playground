@@ -120,7 +120,7 @@ interface RenderCanvasCircleParameters {
 }
 
 function renderCanvasCircle(progress: number, parameters: RenderCanvasCircleParameters): void {
-    const ctx = parameters.canvas.getContext('2d');
+    const ctx = parameters.canvas.getContext('2d')!;
     const dpr = window.devicePixelRatio || 1;
     const width = parameters.resolution.width * dpr;
     const height = parameters.resolution.height * dpr;
@@ -158,7 +158,7 @@ function renderCanvasCircle(progress: number, parameters: RenderCanvasCirclePara
     ctx.stroke();
 }
 
-function getOptionalValue<T>(obj: T, defaultValue: T): T {
+function getOptionalValue<T>(obj: T | undefined, defaultValue: T): T {
     return obj !== undefined && obj !== null ? obj : defaultValue;
 }
 

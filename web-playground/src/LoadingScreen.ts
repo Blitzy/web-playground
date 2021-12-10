@@ -10,16 +10,16 @@ class LoadingScreen {
     private _messageElement: HTMLElement;
     private _iconElement: HTMLElement;
     private _circleProgressBar: CircleProgressBar;
-    private _onProgressAnimate: ProgressFrameCallback;
+    private _onProgressAnimate: ProgressFrameCallback | null;
 
     constructor() {
-        this._rootElement = document.getElementById('loading-screen');
+        this._rootElement = document.getElementById('loading-screen')!;
 
-        this._messageElement = document.getElementById('loading-message');
+        this._messageElement = document.getElementById('loading-message')!;
         this._messageElement.textContent = null;
 
-        this._iconElement = document.getElementById('loading-icon');
-        this._logoElement = document.getElementById('logo');
+        this._iconElement = document.getElementById('loading-icon')!;
+        this._logoElement = document.getElementById('logo')!;
 
         const progressCanvas = document.getElementById('loading-progress-circle') as HTMLCanvasElement;
         this._circleProgressBar = new CircleProgressBar({
@@ -89,11 +89,11 @@ class LoadingScreen {
         return this;
     }
 
-    setMessage(message: string): LoadingScreen {
+    setMessage(message: string | null): LoadingScreen {
         if (!message || message === '') {
             this._messageElement.style.fontSize = '0';
         } else {
-            this._messageElement.style.fontSize = null;
+            this._messageElement.style.removeProperty('fontSize');
         }
 
         this._messageElement.textContent = message;
@@ -102,7 +102,7 @@ class LoadingScreen {
 
     private _animate(): void {
         if (this._visible && this._progressVisible && this._onProgressAnimate) {
-            let progress: number;
+            let progress: number | undefined = undefined;
 
             try {
                 progress = this._onProgressAnimate();
