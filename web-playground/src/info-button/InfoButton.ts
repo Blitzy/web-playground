@@ -59,7 +59,7 @@ export class InfoButton {
             branch = `v${AppBuildInfo.version}`;
         }
 
-        const fullUrl = `${GITHUB_URL}/blob/${branch}/${this._sandboxInfo.sourceRelativeUrl}`;
+        const fullUrl = `${GITHUB_URL}/blob/${branch}/web-playground/${this._sandboxInfo.sourceRelativeUrl}`;
         window.open(fullUrl);
     }
 
