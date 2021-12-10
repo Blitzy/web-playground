@@ -118,7 +118,6 @@ async function main() {
         Bucket: s3sync_config.bucketName,
         Key: s3path,
         Body: fs.readFileSync(file),
-        //@ts-expect-error
         ContentType: contentType,
         CacheControl: s3sync_config.cacheControl,
       }));
