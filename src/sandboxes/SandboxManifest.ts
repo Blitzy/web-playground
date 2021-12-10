@@ -6,7 +6,7 @@ type SandboxModuleType = typeof import('./Sandbox');
 type SandboxImportFunction = { (): Promise<SandboxModuleType> };
 
 export interface SandboxInfo {
-    id: string;
+    id: SandboxId;
     title: string;
     description: string;
     sourceRelativeUrl: string;
@@ -14,7 +14,19 @@ export interface SandboxInfo {
     importFunction: SandboxImportFunction;
 }
 
-export const SandboxManifest: Record<string, SandboxInfo> = {
+export const SandboxIds = [
+    'canvas-image-resize',
+    'orbit-box',
+    'olympia-lightmap-test',
+    'olympia-realtime-light-test',
+    'mesh-performance',
+    'level-of-detail',
+    'procedural-corner-gizmo',
+] as const;
+
+export type SandboxId = typeof SandboxIds[number];
+
+export const SandboxManifest: Record<SandboxId, SandboxInfo> = {
     'canvas-image-resize': {
         id: 'canvas-image-resize',
         title: 'Canvas Image Resize',
@@ -72,8 +84,6 @@ export const SandboxManifest: Record<string, SandboxInfo> = {
     }
 }
 
-export type SandboxId = keyof (typeof SandboxManifest); 
-
 function isSandboxConstructor(id: string, obj: any, assert?: boolean): obj is SandboxConstructor {
     if (obj === undefined || obj === null) {
         if (assert) throw new Error(`${id} is not a sandbox constructor, it is undefined or null.`);
@@ -88,11 +98,11 @@ function isSandboxConstructor(id: string, obj: any, assert?: boolean): obj is Sa
     return true;
 }
 
-export function isSandboxDefined(id: string): boolean {
-    return !!SandboxManifest[id];
+export function isSandboxId(id: string): id is SandboxId {
+    return SandboxIds.some(i => i === id);
 }
 
-export async function loadSandboxModule(id: string): Promise<SandboxConstructor> {
+export async function loadSandboxModule(id: SandboxId): Promise<SandboxConstructor> {
     const info = SandboxManifest[id];
     const module = await info.importFunction();
     const defaultExport = module.default;

@@ -1,4 +1,4 @@
-# Web Playground
+# Blitzy's Web Playground
 
 A ready to use environment for building and playing with web technologies.
 

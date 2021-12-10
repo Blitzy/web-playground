@@ -1,4 +1,4 @@
-# Web Playground - Changelog
+# Blitzy's Web Playground - Changelog
 
 ## v0.1.8 - May 19, 2021
 

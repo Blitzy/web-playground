@@ -138,7 +138,7 @@ function tsConfig() {
 
 function shouldHaveSourceMaps() {
   if (mode === MODES.PROD) {
-    return false;
+    return true;
   } else if (mode === MODES.QA) {
     return true;
   } else if (mode === MODES.DEV) {
@@ -169,12 +169,12 @@ function getWebGLInspector() {
 }
 
 export default async function start(args) {
-  console.log('=======================================');
-  console.log('=        Rollup Web Playground        =');
-  console.log('=======================================');
+  console.log('=================================================');
+  console.log('=        Rollup Blitzy\'s Web Playground        =');
+  console.log('=================================================');
 
   mode = loadArg(args.configMode, MODES);
-  console.log(`Build Web Playground in ${mode} mode.`);
+  console.log(`Build Blitzy\'s Web Playground in ${mode} mode.`);
 
   webglInspector = loadArg(args.configGLI, WEBGLINSPECTOR);
   console.log(`Setting WebGL Inspector to ${webglInspector}.`);
@@ -265,13 +265,6 @@ export default async function start(args) {
       '__web-playground-build-mode__': buildMode(),
     })
   );
-
-  if (shouldHaveSourceMaps()) {
-    plugins.push(
-      sourcemaps({
-      })
-    );
-  }
   
   plugins.push(
     copy({
@@ -285,9 +278,15 @@ export default async function start(args) {
   if (shouldMinify()) {
     plugins.push(
       terser({
-        sourcemap: shouldHaveSourceMaps(),
+        //sourcemap: shouldHaveSourceMaps(),
         warnings: 'verbose',
       })
+    );
+  }
+
+  if (shouldHaveSourceMaps()) {
+    plugins.push(
+      sourcemaps()
     );
   }
 
