@@ -14,7 +14,7 @@
       S3SYNC_ACCESS_KEY_ID="1234abcd"
       S3SYNC_SECRET_ACCESS_KEY="1234abcd"
       S3SYNC_BUCKET_NAME="my-ultra-cool-bucket"
-      S3SYNC_DIST_PATH="./dist"
+      S3SYNC_DIST_PATH="./dist/"
       S3SYNC_CACHE_CONTROL="max-age=86400"
 
     Run via node with a npm script like:
@@ -23,7 +23,13 @@
     Written by Ryan Cook (GitHub: Blitzy).
 */
 
-require('dotenv').config();
+const chalk = require('chalk');
+const { S3Client, DeleteObjectsCommand, ListObjectsCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+const fs = require('fs');
+const path = require('path');
+const mime = require('mime-types');
+
+require('dotenv').config({path: '../.env'});
 
 const s3sync_config = {
   accessKeyId: process.env.S3SYNC_ACCESS_KEY_ID,
@@ -33,12 +39,6 @@ const s3sync_config = {
   distPath: process.env.S3SYNC_DIST_PATH,
   cacheControl: process.env.S3SYNC_CACHE_CONTROL,
 };
-
-const chalk = require('chalk');
-const { S3Client, DeleteObjectsCommand, ListObjectsCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
-const fs = require('fs');
-const path = require('path');
-const mime = require('mime-types');
 
 const client = new S3Client({
   credentials: {
@@ -79,10 +79,23 @@ async function main() {
 
       console.log(chalk.blueBright(`Deleting ${objsToDelete.length} objects from ${s3sync_config.bucketName}...`));
 
-      await client.send(new DeleteObjectsCommand({
-        Bucket: s3sync_config.bucketName,
-        Delete: { Objects: objsToDelete },
-      }));
+      try {
+        const deleteOutput = await client.send(new DeleteObjectsCommand({
+          Bucket: s3sync_config.bucketName,
+          Delete: { Objects: objsToDelete },
+        }));
+
+        if (deleteOutput.Deleted) {
+          console.log(`  > Deleted ${deleteOutput.Deleted.length} objects.`)
+        }
+
+        if (deleteOutput.Errors && deleteOutput.Errors.length > 0) {
+          console.log(chalk.red(`Encountered ${deleteOutput.Errors.length} errors while trying to delete objects.`));
+        }
+
+      } catch(e) {
+        console.error(`delete failed: `, e);
+      }
     } else {
       console.log(chalk.blueBright(`${s3sync_config.bucketName} is already empty.`));
     }
@@ -93,7 +106,10 @@ async function main() {
 
     for (let i = 0; i < distFiles.length; i++) {
       const file = distFiles[i];
-      const s3path = file.substring(s3sync_config.distPath.length - 1);
+      let s3path = file.substring(s3sync_config.distPath.length);
+      if (s3path.startsWith('/')) {
+        s3path = s3path.substring(1);
+      }
       const contentType = mime.lookup(file) || 'application/octet-stream';
 
       console.log(`  > (${i + 1}/${distFiles.length}) ${s3path}`);
@@ -102,6 +118,7 @@ async function main() {
         Bucket: s3sync_config.bucketName,
         Key: s3path,
         Body: fs.readFileSync(file),
+        //@ts-expect-error
         ContentType: contentType,
         CacheControl: s3sync_config.cacheControl,
       }));
@@ -112,6 +129,5 @@ async function main() {
     console.log(chalk.red(error));
   }
 }
-
 
 main();

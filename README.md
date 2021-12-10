@@ -65,7 +65,7 @@ S3SYNC_REGION="your_region_key"
 S3SYNC_ACCESS_KEY_ID="yuor_access_key_id"
 S3SYNC_SECRET_ACCESS_KEY="your_secret_access_key"
 S3SYNC_BUCKET_NAME="your_bucket_name"
-S3SYNC_DIST_PATH="./dist"
+S3SYNC_DIST_PATH="../web-playground/dist"
 ```
 
 Current deployment: <https://d1afogi0np7kx8.cloudfront.net/>

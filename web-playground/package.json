@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "s3:build:sync": "npm run build:prod && node ./src/tools/S3Sync.js"
+    "s3:build:sync": "npm run build && node ./src/tools/S3Sync.js",
+    "s3:sync": "node ./src/tools/S3Sync.js"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.5.0",
