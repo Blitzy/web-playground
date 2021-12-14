@@ -22,6 +22,7 @@ export const SandboxIds = [
     'mesh-performance',
     'level-of-detail',
     'procedural-corner-gizmo',
+    'speech-to-text',
 ] as const;
 
 export type SandboxId = typeof SandboxIds[number];
@@ -81,6 +82,14 @@ export const SandboxManifest: Record<SandboxId, SandboxInfo> = {
         sourceRelativeUrl: 'src/sandboxes/procedural-corner-gizmo/ProceduralCornerGizmo.ts',
         tags: [ ...SandboxTags.babylon ],
         importFunction: () => { return import('./procedural-corner-gizmo/ProceduralCornerGizmo') }
+    },
+    'speech-to-text': {
+        id: 'speech-to-text',
+        title: 'Speech To Text',
+        description: 'Testing different solutions for speech-to-text input for web.',
+        sourceRelativeUrl: 'src/sandboxes/speech-to-text/SpeechToText.tsx',
+        tags: [ 'microphone', 'speech', 'input', 'accessibility' ],
+        importFunction: () => { return import('./speech-to-text/SpeechToText') }
     }
 }
 

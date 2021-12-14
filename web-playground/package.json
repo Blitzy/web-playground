@@ -1,6 +1,6 @@
 {
   "name": "web-playground",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A ready to use environment for playing with web tech.",
   "repository": "git@github.com:Blitzy/web-playground.git",
   "author": "Ryan Cook",
@@ -34,6 +34,8 @@
     "earcut": "^2.2.2",
     "gsap": "^3.6.1",
     "lodash": "^4.17.15",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "stats.js": "^0.17.0",
     "three": "^0.125.2"
   }

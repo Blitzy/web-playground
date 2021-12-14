@@ -1,5 +1,13 @@
 # Blitzy's Web Playground - Changelog
 
+## v0.1.11 - Dec 14, 2021
+
+- Added `speech-to-text` sandbox that houses and example of using official Web Speech API supported by Chromium and WebKit (14.1+).
+
+## v0.1.10 - Dec 10, 2021
+
+- Added some intro text and build info to the front page.
+
 ## v0.1.9 - Dec 10, 2021
 
 - Moved to Vite JS for build tooling solution.
