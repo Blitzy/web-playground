@@ -92,6 +92,17 @@ export const useMicrophone = ({
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      stop();
+
+      if (mediaStream.current) {
+        const tracks = mediaStream.current.getTracks();
+        tracks.forEach(t => t.stop());
+      }
+    }
+  }, []);
+
   return {
     supported,
     recording,

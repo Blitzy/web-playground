@@ -1,5 +1,10 @@
 # Blitzy's Web Playground - Changelog
 
+## v0.1.13 - Dec 17, 2021
+
+- **speech-to-text**: Moved to a dropdown system for selecting active dictation system.
+- **speech-to-text**: Fixed bug that caused Web Speech API to stop working because we didnt properly close the media stream tracks from rev.ai solution.
+
 ## v0.1.12 - Dec 17, 2021
 
 - Added [rev.ai](https://www.rev.ai/) example to `speech-to-text`.

@@ -1,5 +1,5 @@
 import Sandbox from "../Sandbox";
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useWebSpeechRecognition } from "./hooks/useWebSpeechRecognition";
 import { useRevAi } from "./hooks/useRevAi";
@@ -26,6 +26,12 @@ export default class SpeechToText extends Sandbox {
 }
 
 const SpeechToTextApp: React.FC = () => {
+  
+  const [selectedDictationSystem, setSelectedDictationSystem] = useState('web-speech-api');
+
+  const onSelectionChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDictationSystem(event.target.value);
+  }, []);
 
   return (
     <>
@@ -35,10 +41,33 @@ const SpeechToTextApp: React.FC = () => {
         width: '100%',
         alignItems: 'center',
       }}>
-        <h2>Web Speech API</h2>
-        <WebSpeechDictation />
-        <h2>rev.ai</h2>
-        <RevAiDictation />
+        <label htmlFor="selected-dictation-system" style={{ marginTop: '16px'}}>Choose Dictation System</label>
+        <select 
+          id="selected-dictation-system"
+          onChange={onSelectionChange} 
+          style={{
+            marginBottom: '48px',
+            width: '300px',
+            textAlign: 'center'
+          }}
+        >
+          <option value="web-speech-api">Web Speech API</option>
+          <option value="rev-ai">rev.ai</option>
+        </select>
+
+        { selectedDictationSystem === 'web-speech-api' && (
+          <>
+            <h2>Web Speech API</h2>
+            <WebSpeechDictation />
+          </>
+        )}
+
+        { selectedDictationSystem === 'rev-ai' && (
+          <>
+            <h2>rev.ai</h2>
+            <RevAiDictation />
+          </>
+        )}
       </div>
     </>
   )
