@@ -9,7 +9,7 @@
       - mime-types
       - dotenv
 
-    Configure S3 bucket via .env file using the given fields:
+    Configure S3 bucket via an adjacent S3Sync.env file using the given fields:
       S3SYNC_REGION="us-east-2"
       S3SYNC_ACCESS_KEY_ID="1234abcd"
       S3SYNC_SECRET_ACCESS_KEY="1234abcd"
@@ -29,7 +29,7 @@ const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
 
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({path: `${__dirname}/S3Sync.env`});
 
 const s3sync_config = {
   accessKeyId: process.env.S3SYNC_ACCESS_KEY_ID,
@@ -77,7 +77,7 @@ async function main() {
         }
       });
 
-      console.log(chalk.blueBright(`Deleting ${objsToDelete.length} objects from ${s3sync_config.bucketName}...`));
+      console.log(chalk.blueBright(`Found ${objsToDelete.length} objects in ${s3sync_config.bucketName}...`));
 
       try {
         const deleteOutput = await client.send(new DeleteObjectsCommand({

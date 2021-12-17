@@ -1,13 +1,19 @@
 import Sandbox from "../Sandbox";
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { useWebSpeechRecognition } from "./useWebSpeechRecognition";
+import { useWebSpeechRecognition } from "./hooks/useWebSpeechRecognition";
+import { useRevAi } from "./hooks/useRevAi";
+import { useMicrophone, MicAudioData } from "./hooks/useMicrophone";
 
 const TextArea_Width = '90%';
 const TextArea_MaxWidth = '600px';
 const DictationControl_Width = '75px';
 const DictationControl_Height = '30px';
 const DictationControl_Spacing = '8px';
+
+enum RevAiReadyCode {
+
+}
 
 export default class SpeechToText extends Sandbox {
     loaded: boolean;
@@ -24,7 +30,26 @@ export default class SpeechToText extends Sandbox {
 }
 
 const SpeechToTextApp: React.FC = () => {
-  
+
+  return (
+    <>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        alignItems: 'center',
+      }}>
+        <h2>Web Speech API</h2>
+        <WebSpeechDictation />
+        <h2>rev.ai</h2>
+        <RevAiDictation />
+      </div>
+    </>
+  )
+}
+
+const WebSpeechDictation: React.FC = () => {
+
   const {
     supported,
     finalTranscript,
@@ -37,37 +62,92 @@ const SpeechToTextApp: React.FC = () => {
 
   return (
     <>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        alignItems: 'center',
-      }}>
-        <h2>Web Speech API</h2>
-        { supported ? (
-          <>
-            <DictationControls 
-              onStart={start}
-              onStop={stop}
-              onClear={clear}
-              state={recording ? 'recording' : (finalTranscript.length || interimTranscript.length ? 'results' : 'no-results')}
-            />
-            <TextResultsArea id={'web-speech-api'} showCharCount={true} value={finalTranscript + interimTranscript} />
-          </>
-        ) : (
-          <div style={{
-            backgroundColor: '#444',
-            padding: '8px',
-            width: TextArea_Width,
-            maxWidth: TextArea_MaxWidth,
-          }}>
-            <p>This browser does not seem to support the Web Speech API.</p>
-            <a href='https://caniuse.com/speech-recognition' target='_blank' >Can I Use: Speech Recognition API</a>
-          </div>
-        )}
-      </div>
+      { supported ? (
+        <>
+          <DictationControls 
+            onStart={start}
+            onStop={stop}
+            onClear={clear}
+            state={recording ? 'recording' : (finalTranscript.length || interimTranscript.length ? 'results' : 'no-results')}
+          />
+          <TextResultsArea id={'web-speech-api'} showCharCount={true} value={finalTranscript + interimTranscript} />
+        </>
+      ) : (
+        <InfoBox>
+          <p>This browser does not seem to support the Web Speech API.</p>
+          <a href='https://caniuse.com/speech-recognition' target='_blank' >Can I Use: Speech Recognition API</a>
+        </InfoBox>
+      )}
     </>
   )
+}
+
+const RevAiDictation: React.FC = () => {
+  const revai = useRevAi({});
+
+  const onMicData = useCallback((data: MicAudioData) => {
+    revai.send(data.buffer);
+  }, []);
+
+  const mic = useMicrophone({
+    onData: onMicData,
+    dataGapTarget: 500,
+    sampleRate: 48000
+  });
+
+  const onStartClick = useCallback(() => {
+    revai.connect({
+      accessToken: import.meta.env.VITE_REVAI_ACCESS_TOKEN as string,
+      sampleRate: 48000,
+      format: 'F32LE',
+      channels: 1,
+      layout: 'non-interleaved',
+    });
+
+    mic.record();
+  }, []);
+
+  const onStopClick = useCallback(() => {
+    revai.endStream();
+    mic.stop();
+  }, []);
+
+  useEffect(() => {
+    if (!revai.connected) {
+      mic.stop();
+    }
+  }, [revai.connected]);
+
+  if (!mic.supported) {
+    return (
+      <InfoBox>
+        <h3>Not Ready...</h3>
+        <p>No access to microphone.</p>
+      </InfoBox>
+    )
+  } else {
+    return (
+      <>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{
+            backgroundColor: revai.connected ? '#0f0' : '#f00',
+            borderRadius: '100%',
+            width: '12px',
+            height: '12px',
+            marginRight: '8px',
+          }}/>
+          <p>rev.ai service connection</p>
+        </div>
+        <DictationControls 
+          onStart={onStartClick}
+          onStop={onStopClick}
+          onClear={revai.clear}
+          state={mic.recording ? 'recording' : (revai.finalTranscript.length || revai.interimTranscript.length ? 'results' : 'no-results')}
+        />
+        <TextResultsArea id={'rev-ai-api'} showCharCount={true} value={revai.finalTranscript + revai.interimTranscript} />
+      </>
+    )
+  }
 }
 
 type DictationControlsState = 'no-results' | 'recording' | 'results';
@@ -163,5 +243,18 @@ const TextResultsArea: React.FC<TextResultsAreaProps> = ({
         )}
       </div>
     </>
+  )
+}
+
+const InfoBox: React.FC = (props) => {
+  return (
+    <div style={{
+      backgroundColor: '#444',
+      padding: '8px',
+      width: TextArea_Width,
+      maxWidth: TextArea_MaxWidth,
+    }}>
+      {props.children}
+    </div>
   )
 }

@@ -290,3 +290,16 @@ export function disposeMaterial(material: Material) {
 
     material.dispose();
 }
+
+export function flattenFloat32Arrays(arrays: Float32Array[]): Float32Array {
+    const totalLength = arrays.reduce((acc, elem) => acc + elem.length, 0);
+    const result = new Float32Array(totalLength);
+    
+    let index = 0;
+    arrays.forEach((array)=> {
+        result.set(array, index);
+        index += array.length;
+    });
+
+    return result;
+}

@@ -1,5 +1,9 @@
 # Blitzy's Web Playground - Changelog
 
+## v0.1.12 - Dec 17, 2021
+
+- Added [rev.ai](https://www.rev.ai/) example to `speech-to-text`.
+
 ## v0.1.11 - Dec 14, 2021
 
 - Added `speech-to-text` sandbox that houses and example of using official Web Speech API supported by Chromium and WebKit (14.1+).
