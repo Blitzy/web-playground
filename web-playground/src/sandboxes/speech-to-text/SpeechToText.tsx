@@ -1,5 +1,5 @@
 import Sandbox from "../Sandbox";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useWebSpeechRecognition } from "./hooks/useWebSpeechRecognition";
 import { useRevAi } from "./hooks/useRevAi";
@@ -10,10 +10,6 @@ const TextArea_MaxWidth = '600px';
 const DictationControl_Width = '75px';
 const DictationControl_Height = '30px';
 const DictationControl_Spacing = '8px';
-
-enum RevAiReadyCode {
-
-}
 
 export default class SpeechToText extends Sandbox {
     loaded: boolean;

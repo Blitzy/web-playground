@@ -54,7 +54,7 @@ interface RevAiProps {
 }
 
 export const useRevAi = ({
-  maxDuration = 15,
+  maxDuration = 7,
 }: RevAiProps): RevAi =>  {
   const socket = useRef<WebSocket>();
   const [connected, setConnected] = useState(false);
