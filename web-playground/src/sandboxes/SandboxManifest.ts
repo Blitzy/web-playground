@@ -23,6 +23,7 @@ export const SandboxIds = [
     'level-of-detail',
     'procedural-corner-gizmo',
     'speech-to-text',
+    'mind-ar-image-tracking',
 ] as const;
 
 export type SandboxId = typeof SandboxIds[number];
@@ -90,6 +91,14 @@ export const SandboxManifest: Record<SandboxId, SandboxInfo> = {
         sourceRelativeUrl: 'src/sandboxes/speech-to-text/SpeechToText.tsx',
         tags: [ 'microphone', 'speech', 'input', 'accessibility' ],
         importFunction: () => { return import('./speech-to-text/SpeechToText') }
+    },
+    'mind-ar-image-tracking': {
+        id: 'mind-ar-image-tracking',
+        title: 'MindAR - Image Tracking',
+        description: 'Testing out the MindAR library to perform Image Tracking in AR.',
+        sourceRelativeUrl: 'src/sandboxes/mind-ar-image-tracking/MindARImageTracking.ts',
+        tags: [ ...SandboxTags.three, ...SandboxTags.machineLearningAI, 'ar', 'image tracking' ],
+        importFunction: () => { return import('./mind-ar-image-tracking/MindARImageTracking') }
     }
 }
 
