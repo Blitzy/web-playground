@@ -6,6 +6,7 @@
   "author": "Ryan Cook",
   "scripts": {
     "dev": "vite",
+    "dev-force": "vite --force",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "s3:build:sync": "npm run build && node ./src/tools/S3Sync.js",
@@ -17,6 +18,7 @@
     "@types/earcut": "^2.1.1",
     "@types/lodash": "^4.14.151",
     "@types/stats.js": "^0.17.0",
+    "@types/three": "^0.136.0",
     "chalk": "^4.1.0",
     "dotenv": "^8.2.0",
     "mime-types": "^2.1.28",
@@ -37,6 +39,6 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "stats.js": "^0.17.0",
-    "three": "^0.125.2"
+    "three": "^0.136.0"
   }
 }

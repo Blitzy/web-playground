@@ -8,7 +8,6 @@ import {
     TextureLoader,
     Texture,
     Object3D,
-    UnsignedByteType,
     PMREMGenerator,
     MeshStandardMaterial,
     Mesh,
@@ -191,6 +190,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
             this.csm = new CSM({
                 maxFar: this.csmParams.maxFar,
                 cascades: this.csmParams.cascades,
+                //@ts-expect-error
                 mode: this.csmParams.mode,
                 shadowMapSize: this.csmParams.shadowMapSize,
                 shadowBias: this.csmParams.shadowBias,
@@ -356,6 +356,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
                 this.csm.updateFrustums();
             });
             sunLightFolder.add(this.csmParams, 'mode', ['uniform', 'logarithmic', 'practical', 'custom']).name( 'frustum split mode' ).onChange((value: string) => {
+                //@ts-expect-error
                 this.csm.mode = value;
                 this.csm.updateFrustums();
             });
@@ -573,7 +574,7 @@ export default class OlympiaRealtimeLightTest extends Sandbox {
         pmremGenerator.compileEquirectangularShader();
         
         await new Promise<void>((resolve, reject) => {
-            new RGBELoader().setDataType(UnsignedByteType).load(url, 
+            new RGBELoader().load(url, 
                 (texture) => {
                     this.envMap = pmremGenerator.fromEquirectangular(texture).texture;
                     pmremGenerator.dispose();

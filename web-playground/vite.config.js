@@ -15,11 +15,11 @@ export default defineConfig(async (env) => {
       __app_build_time__: JSON.stringify(Date.now().toString()),
     },
     build: {
-      assetsInlineLimit: 0
+      assetsInlineLimit: 0,
     },
     server: {
       host: true,
-      https: true
+      https: true,
     }
   }
 })

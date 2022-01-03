@@ -97,7 +97,7 @@ export default class LevelOfDetail extends Sandbox {
 
         for (let i = 0; i < levels.length; i++) {
             const level = levels[i];
-            const material = new MeshLambertMaterial({ color: '#600', flatShading: true });
+            const material = new MeshLambertMaterial({ color: '#600' });
             const mesh = new Mesh(level.geometry, material);
             mesh.name = `LOD${i}`;
 

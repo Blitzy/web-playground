@@ -248,7 +248,7 @@ export default class OlympiaLightmapTest extends Sandbox {
         pmremGenerator.compileEquirectangularShader();
         
         await new Promise<void>((resolve, reject) => {
-            new RGBELoader().setDataType(UnsignedByteType).load(url, 
+            new RGBELoader().load(url, 
                 (texture) => {
                     this.envMap = pmremGenerator.fromEquirectangular(texture).texture;
                     pmremGenerator.dispose();
