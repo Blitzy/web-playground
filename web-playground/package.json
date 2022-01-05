@@ -1,6 +1,6 @@
 {
   "name": "web-playground",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "A ready to use environment for playing with web tech.",
   "repository": "git@github.com:Blitzy/web-playground.git",
   "author": "Ryan Cook",

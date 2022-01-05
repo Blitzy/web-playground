@@ -9,6 +9,7 @@ export default defineConfig(async (env) => {
       '**/*.gltf',
       '**/*.bin',
       '**/*.hdr',
+      '**/*.mind',
     ],
     define: {
       __app_build_version__: JSON.stringify(pkg.version),

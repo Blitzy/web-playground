@@ -56,4 +56,9 @@ declare module '*.hdr' {
     export default url;
 }
 
+declare module '*.mind' {
+    const url: string;
+    export default url;
+}
+
 // export{}

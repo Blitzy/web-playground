@@ -1,5 +1,9 @@
 # Blitzy's Web Playground - Changelog
 
+## v0.1.14 - Jan 5, 2022
+
+- Added `mind-ar-image-tracking` sandbox that is a test bed for MindAR library that does image tracking through Tensor.
+
 ## v0.1.13 - Dec 17, 2021
 
 - **speech-to-text**: Moved to a dropdown system for selecting active dictation system.
