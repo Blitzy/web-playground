@@ -10,7 +10,6 @@ import {
     TextureLoader,
     Texture,
     Object3D,
-    UnsignedByteType,
     PMREMGenerator,
     FrontSide,
 } from "three";
